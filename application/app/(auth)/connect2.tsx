@@ -22,7 +22,7 @@ export default function Connect2() {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/(auth)/masuk")}
+          onPress={() => router.push("/(auth)/option")}
         >
           <Text style={styles.buttonText}>Masuk</Text>
         </TouchableOpacity>
