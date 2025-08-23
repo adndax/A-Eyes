@@ -328,9 +328,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   statusBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 12,
   },
   statusText: {
     fontSize: 12,
