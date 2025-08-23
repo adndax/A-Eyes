@@ -75,22 +75,22 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-  flexDirection: "row",
-  alignItems: "center",      // vertical center
-  justifyContent: "center",  // horizontal center
-  backgroundColor: "#272829",
-  paddingVertical: 12,
-  paddingHorizontal: 30,
-  borderRadius: 8,
-  marginTop: 10,
-},
+    flexDirection: "row",
+    alignItems: "center",      
+    justifyContent: "center",  
+    backgroundColor: "#272829",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 10,
+  },
 
-buttonText: {
-  color: "#fff",
-  fontSize: 14,
-  fontFamily: "PoppinsMedium",
-  flex: 1,                // biar teks ambil ruang tersisa
-  textAlign: "center",    // teksnya center
-},
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: "PoppinsMedium",
+    flex: 1,                
+    textAlign: "center",    
+  },
 
 });
