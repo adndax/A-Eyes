@@ -6,7 +6,6 @@ import { Image } from "react-native";
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
 function CustomTabBarItem({ 
   source, 
@@ -70,8 +69,8 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         tabBarInactiveTintColor: '#445867',
-        headerShown: useClientOnlyValue(false, true),
-        tabBarShowLabel: false, // Sembunyikan label default
+        headerShown: false,
+        tabBarShowLabel: false, 
         tabBarStyle: {
           paddingBottom: 10,
           paddingTop: 12,
@@ -81,7 +80,7 @@ export default function TabLayout() {
       }}>
       
       <Tabs.Screen
-        name="beranda"
+        name="index"
         options={{
           title: 'Beranda',
           tabBarIcon: ({ color, focused }) => (
