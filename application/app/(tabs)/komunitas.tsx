@@ -283,14 +283,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginHorizontal: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#DADADA',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -389,14 +383,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 20,
     marginHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#DADADA',
   },
   selfTrainingTitle: {
     fontSize: 16,
