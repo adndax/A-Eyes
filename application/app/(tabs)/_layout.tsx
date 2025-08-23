@@ -2,6 +2,7 @@ import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
+import { Image } from "react-native";
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -27,10 +28,21 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
       }}>
       <Tabs.Screen
-        name="index"
+        name="beranda"
         options={{
           title: 'Beranda',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <Image
+                source={require("@/assets/images/beranda.png")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: color, 
+                  opacity: focused ? 1 : 0.6,
+                }}
+                resizeMode="contain"
+              />
+            ),
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -51,28 +63,72 @@ export default function TabLayout() {
         name="riwayat"
         options={{
           title: 'Riwayat',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <Image
+                source={require("@/assets/images/riwayat.png")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: color, 
+                  opacity: focused ? 1 : 0.6,
+                }}
+                resizeMode="contain"
+              />
+            ),
         }}
       />
       <Tabs.Screen
         name="komunitas"
         options={{
           title: 'Komunitas',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <Image
+                source={require("@/assets/images/komunitas.png")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: color, 
+                  opacity: focused ? 1 : 0.6,
+                }}
+                resizeMode="contain"
+              />
+            ),
         }}
       />
       <Tabs.Screen
         name="latihan"
         options={{
           title: 'Latihan',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <Image
+                source={require("@/assets/images/latihan.png")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: color, 
+                  opacity: focused ? 1 : 0.6,
+                }}
+                resizeMode="contain"
+              />
+            ),
         }}
       />
       <Tabs.Screen
         name="profil"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <Image
+                source={require("@/assets/images/profil.png")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: color, 
+                  opacity: focused ? 1 : 0.6,
+                }}
+                resizeMode="contain"
+              />
+            ),
         }}
       />
     </Tabs>
