@@ -232,17 +232,18 @@ const styles = StyleSheet.create({
   // Header Styles
   header: {
     paddingHorizontal: 20,
-    paddingTop: 30,
+    paddingTop: 28,
     paddingBottom: 24,
   },
   pageTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'PoppinsSemiBold',
     color: '#111827',
     marginBottom: 8,
   },
   pageSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: 'PoppinsMedium',
     color: '#6B7280',
     lineHeight: 24,
   },
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#9333EA',
     borderStyle: 'dashed',
@@ -268,9 +269,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   searchButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#9333EA',
-    fontWeight: '400',
+    fontFamily: 'PoppinsMedium',
     textAlign: 'center',
   },
 
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#DADADA',
+    borderColor: '#DADADA'
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -291,8 +292,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontFamily: 'PoppinsSemiBold',
     color: '#374151',
     marginLeft: 8,
   },
@@ -322,18 +323,18 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'PoppinsSemiBold',
     color: '#111827',
     marginRight: 12,
   },
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: 12,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: 'PoppinsMedium',
     color: '#FFFFFF',
     textTransform: 'capitalize',
   },
@@ -342,7 +343,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationText: {
-    fontSize: 14,
+    fontSize: 12,
+    fontFamily: 'PoppinsMedium',
     color: '#6B7280',
     marginLeft: 4,
     flexShrink: 1,
@@ -358,8 +360,8 @@ const styles = StyleSheet.create({
   },
   inviteText: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 12,
+    fontFamily: 'PoppinsMedium',
     marginLeft: 6,
   },
 
@@ -369,7 +371,8 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   emptyStateText: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: 'PoppinsMedium',
     color: '#9CA3AF',
     marginTop: 12,
     textAlign: 'center',
@@ -383,12 +386,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginHorizontal: 20,
     borderWidth: 1,
-    borderColor: '#DADADA',
+    borderColor: '#DADADA'
   },
   selfTrainingTitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
+    fontFamily: 'PoppinsMedium',
     marginBottom: 16,
     lineHeight: 24,
   },
@@ -403,8 +407,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   selfTrainingButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#374151',
-    fontWeight: '500',
+    fontFamily: 'PoppinsMedium',
   },
 });
