@@ -5,7 +5,6 @@ import {
   StyleSheet, 
   SafeAreaView, 
   ScrollView, 
-  TextInput, 
   Pressable,
   Alert 
 } from 'react-native';
@@ -233,7 +232,7 @@ const styles = StyleSheet.create({
   // Header Styles
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 24,
   },
   pageTitle: {
