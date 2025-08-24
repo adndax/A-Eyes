@@ -13,7 +13,6 @@ export default function Beranda() {
         contentContainerStyle={{ paddingBottom: 24 }}
         style={{ paddingHorizontal: 20, paddingTop: 32 }}
       >
-        {/* Header */}
         <View style={{ marginTop: 48 }}>
           <Text style={{ fontFamily: "PoppinsSemiBold", fontSize: 22, fontWeight: '600', color: '#272829' }}>
             Selamat Datang, {name}!

@@ -85,55 +85,53 @@ export default function Panduan() {
 
   if (finished) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <ScrollView
           contentContainerStyle={{ paddingBottom: 36, alignItems: 'center' }}
-          style={{ paddingHorizontal: 20, paddingTop: 48 }}
+          style={{ paddingHorizontal: 20, paddingTop: insets.top + 120 }}
         >
           <Text
             style={{
               fontFamily: 'Poppins-SemiBold',
               fontWeight: '600',
               fontSize: 24,
-              lineHeight: 30,
-              color: '#111827',
+              lineHeight: 24,
+              color: '#272829',
               textAlign: 'center',
             }}
           >
             Panduan Awal Selesai!
           </Text>
 
-          <View style={{ marginTop: 28, width: 120, height: 120, borderRadius: 60, backgroundColor: '#44525B', alignItems: 'center', justifyContent: 'center' }}>
-            <MaterialCommunityIcons name="human-handsup" size={64} color="#FFFFFF" />
+          <View style={{ marginTop: 32, width: 180, height: 180, borderRadius: 60, backgroundColor: '#44525B', alignItems: 'center', justifyContent: 'center' }}>
+            <MaterialCommunityIcons name="human-handsup" size={140} color="#FFFFFF" />
           </View>
 
-          <Text style={{ marginTop: 18, fontSize: 14, color: '#111827', textAlign: 'center' }}>
+          <Text style={{ fontFamily: 'Poppins-Medium', marginTop: 36, lineHeight: 22, fontSize: 16, color: '#111827', textAlign: 'center' }}>
             A-Eyes siap digunakan.{'\n'}Saatnya bergerak bebas dan percaya diri!
           </Text>
 
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 24, alignSelf: 'stretch' }}>
-            <Pressable
-              onPress={() => router.replace('/(tabs)/index')}
-              style={styles.ghostBtn}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Ionicons name="home-outline" size={16} color="#111827" />
-                <Text style={[styles.ghostBtnText, { fontWeight: '600' }]}>Kembali ke Beranda</Text>
-              </View>
-            </Pressable>
+          <View style={styles.navRow}>
+          <Pressable
+            style={[styles.navBtn, styles.ghostBtn]}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.ghostBtnText}>Kembali ke Beranda</Text>
+          </Pressable>
 
-            <Pressable
-              onPress={() => router.replace('/(tabs)/latihan')}
-              style={styles.primaryDark}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <MaterialCommunityIcons name="run" size={18} color="#FFFFFF" />
-                <Text style={styles.primaryDarkText}>Mulai Olahraga</Text>
-              </View>
-            </Pressable>
-          </View>
+          <Pressable
+            style={[
+              styles.navBtn, styles.primaryDark
+            ]}
+            onPress={() => router.push('/olahraga')}
+          >
+            <Text style={styles.primaryDarkText}>
+              Mulai Olahraga
+            </Text>
+          </Pressable>
+        </View>
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -143,7 +141,6 @@ export default function Panduan() {
         contentContainerStyle={{ paddingBottom: 32 }}
         style={{ paddingHorizontal: 20, paddingTop: insets.top + 16 }}
       >
-        {/* Title */}
         <View style={{ alignItems: 'center', marginTop: 4 }}>
           <Text
             style={{
@@ -278,8 +275,7 @@ const styles = StyleSheet.create({
   },
 
   primaryDark: {
-    marginTop: 8,
-    borderRadius: 12,
+    borderRadius: 8,
     backgroundColor: '#272829',
     paddingVertical: 12,
     alignItems: 'center',
