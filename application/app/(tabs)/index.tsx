@@ -14,11 +14,11 @@ export default function Beranda() {
         style={{ paddingHorizontal: 20, paddingTop: 32 }}
       >
         {/* Header */}
-        <View style={{ marginTop: 45 }}>
-          <Text style={{ fontSize: 24, fontWeight: '600', color: '#272829' }}>
+        <View style={{ marginTop: 48 }}>
+          <Text style={{ fontFamily: "PoppinsSemiBold", fontSize: 22, fontWeight: '600', color: '#272829' }}>
             Selamat Datang, {name}!
           </Text>
-          <Text style={{ marginTop: 4, fontSize: 14, color: '#272829' }}>
+          <Text style={{ fontFamily: "PoppinsMedium", marginTop: 4, fontSize: 12, color: '#272829' }}>
             Pilih aktivitas yang ingin Anda lakukan
           </Text>
         </View>
@@ -30,7 +30,7 @@ export default function Beranda() {
             borderRadius: 8,
             backgroundColor: '#48814C',
             paddingHorizontal: 16,
-            paddingVertical: 14,
+            paddingVertical: 12,
           }}
           onPress={() => {}}
         >
@@ -44,10 +44,11 @@ export default function Beranda() {
           >
             <Text
               style={{
+                fontFamily: 'PoppinsMedium',
                 color: 'white',
                 fontWeight: '500',
                 marginLeft: 8,
-                fontSize: 16,
+                fontSize: 14,
               }}
             >
               Kacamata Terhubung
@@ -57,9 +58,10 @@ export default function Beranda() {
 
         <Text
           style={{
+            fontFamily: 'PoppinsSemiBold',
             marginTop: 32,
             marginBottom: 12,
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: '600',
             color: '#374151',
           }}
@@ -113,15 +115,15 @@ function MenuCard({ title, subtitle, icon, onPress, style }: MenuCardProps) {
     >
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         <View style={{ marginBottom: 12 }}>{icon}</View>
-        <Text style={{ fontSize: 16, fontWeight: '600', lineHeight:24, color: '#000000' }}>
+        <Text style={{ fontFamily: 'PoppinsSemiBold', fontSize: 16, lineHeight:24, color: '#000000' }}>
           {title}
         </Text>
         <Text
           style={{
+            fontFamily: 'PoppinsMedium',
             textAlign: 'center',
-            fontSize: 12,
-            fontWeight: '500',
-            lineHeight: 24,
+            fontSize: 11,
+            lineHeight: 20,
             color: '#535C60',
           }}
         >
