@@ -1,14 +1,28 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Image } from "react-native";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import EditScreenInfo from "@/components/EditScreenInfo";
+import { Text, View } from "@/components/Themed";
 
 export default function Latihan() {
   return (
+    // <View style={styles.container}>
+    //   <Text style={styles.title}>Tab Four</Text>
+    //   <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+    //   <EditScreenInfo path="app/(tabs)/two.tsx" />
+    // </View>
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Four</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
+      <View style={styles.header}>
+        <Text style={styles.title}>Latihan Kognitif</Text>
+        <Text style={styles.desc}>
+          Pilih jenis latihan yang ingin Anda lakukan
+        </Text>
+      </View>
+      <View>
+        <View>
+          <Image source={require("../../assets/images/Sound.png")} />
+        </View>
+        <View></View>
+      </View>
     </View>
   );
 }
@@ -16,16 +30,17 @@ export default function Latihan() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    paddingVertical: 28,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  header: {
+    gap: 10,
+  },
+  desc: {
+    fontSize: 16,
   },
 });
