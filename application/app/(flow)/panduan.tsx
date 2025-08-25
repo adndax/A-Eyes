@@ -92,7 +92,7 @@ export default function Panduan() {
         >
           <Text
             style={{
-              fontFamily: 'Poppins-SemiBold',
+              fontFamily: 'PoppinsSemiBold',
               fontWeight: '600',
               fontSize: 24,
               lineHeight: 24,
@@ -107,7 +107,7 @@ export default function Panduan() {
             <MaterialCommunityIcons name="human-handsup" size={140} color="#FFFFFF" />
           </View>
 
-          <Text style={{ fontFamily: 'Poppins-Medium', marginTop: 36, lineHeight: 22, fontSize: 16, color: '#111827', textAlign: 'center' }}>
+          <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 36, lineHeight: 22, fontSize: 16, color: '#111827', textAlign: 'center' }}>
             A-Eyes siap digunakan.{'\n'}Saatnya bergerak bebas dan percaya diri!
           </Text>
 
@@ -116,16 +116,16 @@ export default function Panduan() {
             style={[styles.navBtn, styles.ghostBtn]}
             onPress={() => router.back()}
           >
-            <Text style={styles.ghostBtnText}>Kembali ke Beranda</Text>
+            <Text style={styles.homeBtnText}>Kembali ke Beranda</Text>
           </Pressable>
 
           <Pressable
             style={[
-              styles.navBtn, styles.primaryDark
+              styles.navBtn, styles.nextDark
             ]}
             onPress={() => router.push('/olahraga')}
           >
-            <Text style={styles.primaryDarkText}>
+            <Text style={styles.nextDarkText}>
               Mulai Olahraga
             </Text>
           </Pressable>
@@ -139,14 +139,14 @@ export default function Panduan() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32 }}
-        style={{ paddingHorizontal: 20, paddingTop: insets.top + 16 }}
+        style={{ paddingHorizontal: 20, paddingTop: insets.top + 40 }}
       >
         <View style={{ alignItems: 'center', marginTop: 4 }}>
           <Text
             style={{
-              fontFamily: 'Poppins-SemiBold',
+              fontFamily: 'PoppinsSemiBold',
               fontWeight: '600',
-              fontSize: 22,
+              fontSize: 23,
               lineHeight: 24,
               color: '#272829',
             }}
@@ -154,7 +154,7 @@ export default function Panduan() {
             Panduan Awal
           </Text>
 
-          <Text style={{ fontFamily: 'Poppins-Medium', marginTop: 6, fontSize: 13, color: '#272829' }}>
+          <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 4, fontSize: 13, lineHeight: 24, color: '#272829' }}>
             Langkah {stepIndex + 1} dari {total}
           </Text>
         </View>
@@ -175,9 +175,9 @@ export default function Panduan() {
             <Text
               style={{
                 marginTop: 16,
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: 'PoppinsSemiBold',
                 fontWeight: '600',
-                fontSize: 16,
+                fontSize: 15,
                 lineHeight: 24,
                 color: '#000000',
                 textAlign: 'center',
@@ -186,7 +186,7 @@ export default function Panduan() {
               {step.title}
             </Text>
 
-            <Text style={{ marginTop: 6, fontSize: 12, color: '#535C60', textAlign: 'center' }}>
+            <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 6, fontSize: 11, color: '#535C60', textAlign: 'center' }}>
               {step.subtitle}
             </Text>
 
@@ -213,19 +213,19 @@ export default function Panduan() {
           <Pressable
             style={[
               styles.navBtn,
-              done[stepIndex] ? styles.primaryDark : styles.nextDisabled,
+              done[stepIndex] ? styles.nextDark : styles.nextDisabled,
             ]}
             disabled={!done[stepIndex]}
             onPress={onNext}
           >
-            <Text style={done[stepIndex] ? styles.primaryDarkText : styles.nextDisabledText}>
+            <Text style={done[stepIndex] ? styles.nextDarkText : styles.nextDisabledText}>
               Selanjutnya →
             </Text>
           </Pressable>
         </View>
 
         <Pressable onPress={() => router.back()} style={{ alignItems: 'center', marginTop: 32 }}>
-          <Text style={{ fontFamily: 'Poppins-SemiBold', fontWeight: '600', fontSize: 13, color: '#111827' }}>
+          <Text style={{ fontFamily: 'PoppinsSemiBold', fontWeight: '600', fontSize: 13, color: '#111827' }}>
             Lewati Panduan
           </Text>
         </Pressable>
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   progressText: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'PoppinsMedium',
     marginTop: 10,
     fontSize: 11,
     color: '#707070',
@@ -283,8 +283,8 @@ const styles = StyleSheet.create({
   },
   primaryDarkText: {
     color: '#FFFFFF',
-    fontFamily: 'Poppins-Medium',
-    fontSize: 14,
+    fontFamily: 'PoppinsMedium',
+    fontSize: 15,
     fontWeight: '600',
   },
 
@@ -296,10 +296,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryMutedText: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'PoppinsMedium',
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
+    textAlign: 'center'
   },
 
   nextDisabled: {
@@ -310,9 +311,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nextDisabledText: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'PoppinsMedium',
     color: '#ffffffff',
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  nextDark: {
+    borderRadius: 8,
+    backgroundColor: '#272829',
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextDarkText: {
+    color: '#FFFFFF',
+    fontFamily: 'PoppinsMedium',
+    fontSize: 12,
     fontWeight: '600',
   },
 
@@ -338,9 +353,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   ghostBtnText: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'PoppinsMedium',
     color: '#8C8C8C',
-    fontSize: 13,
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  homeBtnText: {
+    fontFamily: 'PoppinsMedium',
+    color: '#272829',
+    fontSize: 12,
     fontWeight: '500',
   },
 });
