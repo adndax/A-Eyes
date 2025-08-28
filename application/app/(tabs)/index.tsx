@@ -1,5 +1,6 @@
 import { Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Text, View } from '@/components/Themed';
 
@@ -7,8 +8,9 @@ const name = "Elios";
 
 export default function Beranda() {
   const router = useRouter();
+  
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 24 }}
         style={{ paddingHorizontal: 20, paddingTop: 28 }}
@@ -84,7 +86,7 @@ export default function Beranda() {
           onPress={() => router.push("/mulaiolahraga")}
         />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

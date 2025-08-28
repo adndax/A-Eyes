@@ -1,4 +1,5 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from "@/components/Themed";
 import {
   Volume2,
@@ -16,7 +17,7 @@ export default function Latihan() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Latihan Kognitif</Text>
         <Text style={styles.desc}>
@@ -75,7 +76,7 @@ export default function Latihan() {
         <Eye size={20} color="#fff" style={styles.historyIcon} />
         <Text style={styles.historyText}>Lihat Riwayat Latihan</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
