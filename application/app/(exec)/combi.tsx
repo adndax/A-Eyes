@@ -73,7 +73,7 @@ export default function LatihanKombinasi() {
             onPress={() => router.back()}
           >
             <Text style={styles.secondaryButtonText}>
-              🏠 Kembali ke Beranda
+              Kembali ke Beranda
             </Text>
           </TouchableOpacity>
 
@@ -81,7 +81,7 @@ export default function LatihanKombinasi() {
             style={styles.primaryButton}
             onPress={() => router.push("/riwayat")}
           >
-            <Text style={styles.primaryButtonText}>📊 Lihat Riwayat</Text>
+            <Text style={styles.primaryButtonText}>Lihat Riwayat</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -161,12 +161,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: 'PoppinsSemibold',
     color: "#333",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
+    fontFamily: 'PoppinsMedium',
     color: "#666",
     marginBottom: 20,
   },
@@ -187,6 +188,7 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     fontSize: 14,
+    fontFamily: 'PoppinsMedium',
     color: "#666",
     marginBottom: 30,
   },
@@ -201,6 +203,7 @@ const styles = StyleSheet.create({
   },
   instruction: {
     fontSize: 16,
+    fontFamily: 'PoppinsMedium',
     color: "#333",
     textAlign: "center",
     marginBottom: 40,
@@ -230,6 +233,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
+    fontFamily: 'PoppinsMedium',
     fontSize: 16,
     fontWeight: "600",
   },
@@ -245,6 +249,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: "#666",
+    fontFamily: 'PoppinsMedium',
     fontSize: 16,
   },
   completedContainer: {
@@ -256,7 +261,7 @@ const styles = StyleSheet.create({
   },
   completedTitle: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontFamily: 'PoppinsSemibold',
     color: "#333",
     marginBottom: 30,
     textAlign: "center",
@@ -270,11 +275,13 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   resultCard: {
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 30,
     width: "100%",
     marginBottom: 30,
+    borderWidth: 1,
+    borderColor: '#DADADA'
   },
   resultRow: {
     flexDirection: "row",
@@ -285,17 +292,19 @@ const styles = StyleSheet.create({
   },
   resultNumber: {
     fontSize: 36,
-    fontWeight: "bold",
+    fontFamily: 'PoppinsSemibold',
     color: "#333",
     marginBottom: 5,
   },
   resultLabel: {
     fontSize: 14,
+    fontFamily: "PoppinsMedium",
     color: "#666",
   },
   motivationText: {
     fontSize: 16,
     color: "#666",
+    fontFamily: "PoppinsMedium",
     textAlign: "center",
     marginBottom: 40,
     lineHeight: 24,
@@ -313,7 +322,8 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: "#fff",
-    fontSize: 16,
+    fontFamily: "PoppinsMedium",
+    fontSize: 14,
     fontWeight: "600",
   },
   secondaryButton: {
@@ -327,7 +337,8 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: "#333",
-    fontSize: 16,
+    fontFamily: "PoppinsMedium",
+    fontSize: 14,
     fontWeight: "600",
   },
 });

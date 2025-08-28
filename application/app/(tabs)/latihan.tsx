@@ -90,14 +90,15 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1f2937",
-    marginBottom: 8,
+    fontSize: 28,
+    fontFamily: 'PoppinsSemiBold',
+    color: "#111827",
   },
   desc: {
-    fontSize: 16,
-    color: "#6b7280",
+    fontSize: 14,
+    fontFamily: 'PoppinsMedium',
+    color: '#6B7280',
+    lineHeight: 24,
   },
   exerciseList: {
     flex: 1,
@@ -117,6 +118,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#DADADA'
   },
   iconContainer: {
     width: 48,
@@ -131,19 +134,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontFamily: 'PoppinsSemiBold',
     color: "#1f2937",
     marginBottom: 4,
   },
   cardDesc: {
-    fontSize: 14,
+    fontSize: 12,
+    fontFamily: 'PoppinsMedium',
     color: "#6b7280",
     lineHeight: 20,
   },
   historyButton: {
     backgroundColor: "#374151",
     borderRadius: 12,
+    fontFamily: "PoppinsMedium",
     padding: 16,
     flexDirection: "row",
     justifyContent: "center",

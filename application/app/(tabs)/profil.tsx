@@ -360,14 +360,13 @@ const styles = StyleSheet.create({
   // Header Styles
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 28,
     paddingBottom: 24,
   },
   pageTitle: {
     fontSize: 28,
     fontFamily: 'PoppinsSemiBold',
     color: '#111827',
-    marginBottom: 8,
   },
   pageSubtitle: {
     fontSize: 14,
@@ -418,7 +417,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   infoValue: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsSemiBold',
     color: '#111827',
   },
@@ -437,7 +436,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   actionButtonText: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
     marginLeft: 8,
@@ -457,13 +456,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
     marginLeft: 8,
   },
   firmwareInfo: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
   },
@@ -474,13 +473,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   firmwareVersion: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsSemiBold',
     color: '#111827',
   },
   deviceActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
   },
   deviceActionButton: {
     flex: 1,
@@ -496,7 +495,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   deviceActionText: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
     marginLeft: 6,
@@ -513,13 +512,13 @@ const styles = StyleSheet.create({
 
   // Slider Styles
   sliderContainer: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sliderLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsSemiBold',
     color: '#374151',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sliderWrapper: {
     paddingHorizontal: 4,
@@ -555,7 +554,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   sliderValue: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
   },
@@ -563,15 +562,17 @@ const styles = StyleSheet.create({
   // Voice Gender Styles
   voiceGenderContainer: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
     marginBottom: 24,
   },
   voiceButton: {
     flex: 1,
-    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 8,
-    alignItems: 'center',
   },
   voiceButtonActive: {
     backgroundColor: '#272829',
@@ -582,7 +583,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   voiceButtonText: {
-    fontSize: 12,
+    fontSize: 14,
+    textAlign: 'center',
     fontFamily: 'PoppinsMedium',
   },
   voiceButtonTextActive: {
@@ -604,7 +606,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   toggleLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
     flex: 1,

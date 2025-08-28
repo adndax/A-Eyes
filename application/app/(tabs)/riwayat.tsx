@@ -253,7 +253,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontFamily: 'PoppinsSemiBold',
     color: '#111827',
-    marginBottom: 8,
   },
   pageSubtitle: {
     fontSize: 14,
