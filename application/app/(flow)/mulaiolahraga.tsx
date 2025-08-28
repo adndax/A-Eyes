@@ -13,16 +13,16 @@ type Option = {
 };
 
 const ACTIVITY: Option[] = [
-  { key: 'santai', title: 'Jalan Santai', subtitle: 'Kecepatan rendah, santai' },
-  { key: 'cepat', title: 'Jalan Cepat', subtitle: 'Kecepatan sedang, aktif' },
-  { key: 'lari', title: 'Lari', subtitle: 'Kecepatan tinggi, intensif' },
+  { key: 'Jalan Santai', title: 'Jalan Santai', subtitle: 'Kecepatan rendah, santai' },
+  { key: 'Jalan Cepat', title: 'Jalan Cepat', subtitle: 'Kecepatan sedang, aktif' },
+  { key: 'Lari', title: 'Lari', subtitle: 'Kecepatan tinggi, intensif' },
 ];
 
 const ROUTES: Option[] = [
-  { key: 'taman', title: 'Rute Taman', subtitle: 'Jalur taman dengan trek rata', chip: '15–30 menit' },
-  { key: 'perumahan', title: 'Rute Perumahan', subtitle: 'Jalur sekitar perumahan', chip: '20–40 menit' },
-  { key: 'track', title: 'Rute Track', subtitle: 'Jalur atletik standar', chip: '10–20 menit' },
-  { key: 'custom', title: 'Buat Rute Sendiri', subtitle: 'Tentukan jalur sesuai keinginan', chip: 'Bebas' },
+  { key: 'Rute Taman', title: 'Rute Taman', subtitle: 'Jalur taman dengan trek rata', chip: '15–30 menit' },
+  { key: 'Rute Perumahan', title: 'Rute Perumahan', subtitle: 'Jalur sekitar perumahan', chip: '20–40 menit' },
+  { key: 'Rute Track', title: 'Rute Track', subtitle: 'Jalur atletik standar', chip: '10–20 menit' },
+  { key: 'Rute Custom', title: 'Buat Rute Sendiri', subtitle: 'Tentukan jalur sesuai keinginan', chip: 'Bebas' },
 ];
 
 export default function MulaiOlahraga() {
