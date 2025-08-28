@@ -114,7 +114,7 @@ export default function Panduan() {
           <View style={styles.navRow}>
           <Pressable
             style={[styles.navBtn, styles.ghostBtn]}
-            onPress={() => router.back()}
+            onPress={() => router.replace('/(tabs)')}
           >
             <Text style={styles.homeBtnText}>Kembali ke Beranda</Text>
           </Pressable>

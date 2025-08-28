@@ -1,269 +1,160 @@
-import React, { useMemo, useState } from 'react';
-import { StyleSheet, Pressable, ScrollView, View } from 'react-native';
-import { Text } from '@/components/Themed';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Pressable, ScrollView } from 'react-native';
+import { Text, View } from '@/components/Themed';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-type Option = {
-  key: string;
-  title: string;
-  subtitle: string;
-  chip?: string;
-};
+function formatMMSS(totalSeconds: number) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  const mm = String(m).padStart(2, '0');
+  const ss = String(s).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
 
-const ACTIVITY: Option[] = [
-  { key: 'santai', title: 'Jalan Santai', subtitle: 'Kecepatan rendah, santai' },
-  { key: 'cepat', title: 'Jalan Cepat', subtitle: 'Kecepatan sedang, aktif' },
-  { key: 'lari', title: 'Lari', subtitle: 'Kecepatan tinggi, intensif' },
-];
-
-const ROUTES: Option[] = [
-  { key: 'taman', title: 'Rute Taman', subtitle: 'Jalur taman dengan trek rata', chip: '15–30 menit' },
-  { key: 'perumahan', title: 'Rute Perumahan', subtitle: 'Jalur sekitar perumahan', chip: '20–40 menit' },
-  { key: 'track', title: 'Rute Track', subtitle: 'Jalur atletik standar', chip: '10–20 menit' },
-  { key: 'custom', title: 'Buat Rute Sendiri', subtitle: 'Tentukan jalur sesuai keinginan', chip: 'Bebas' },
-];
-
-export default function MulaiOlahraga() {
+export default function SesiOlahraga() {
   const insets = useSafeAreaInsets();
-  const [activity, setActivity] = useState<string | null>(null);
-  const [route, setRoute] = useState<string | null>(null);
+  const params = useLocalSearchParams<{ mode?: string; rute?: string }>();
 
-  const ready = useMemo(() => Boolean(activity && route), [activity, route]);
+  const mode = params.mode ?? 'Jalan Cepat';
+  const rute = params.rute ?? 'Rute Taman';
+  const router = useRouter();
+
+  const [seconds, setSeconds] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  const distanceRef = useRef(0);
+  const [distance, setDistance] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!paused) {
+        setSeconds((s) => s + 1);
+        distanceRef.current += 1.33;
+        setDistance(distanceRef.current);
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const durMMSS = formatMMSS(seconds);
+  const distanceKm = useMemo(() => (distance / 1000).toFixed(1).replace('.', ','), [distance]);
+
+  const onTogglePause = () => setPaused((p) => !p);
+  const onFinish = () => {
+    router.replace({
+      pathname: '/olahragaSelesai',
+      params: {
+        durasi: durMMSS,
+        jarakKm: distanceKm,
+        status: paused ? 'aktif & jeda' : 'aktif & stabil',
+        panduan: 'ON',
+        mode,
+        rute,
+      },
+    });
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <ScrollView
         style={{ paddingHorizontal: 20 }}
-        contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: 28 }}
+        contentContainerStyle={{ paddingTop: insets.top + 120, paddingBottom: 28 }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        <View style={{ alignItems: 'center', marginTop: 6 }}>
-          <Text style={styles.title}>Mulai Olahraga</Text>
-          <Text style={styles.subtitle}>Pilih mode dan rute olahraga Anda</Text>
-        </View>
-
         <View style={styles.card}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-            <MaterialCommunityIcons name="pulse" size={20} color="#111827" style={{ marginRight: 8 }} />
-            <Text style={styles.cardHeaderText}>Pilih Mode Aktivitas</Text>
+          <Text style={styles.title}>Sedang Berolahraga</Text>
+          <Text style={styles.timer}>{durMMSS}</Text>
+          <Text style={styles.subline}>{mode} - {rute}</Text>
+
+          <View style={styles.statusRow}>
+            <View style={styles.statusCol}>
+              <MaterialCommunityIcons name="pulse" size={22} color="#2E3942" />
+              <Text style={styles.statusLabel}>Status: <Text style={styles.statusOk}>Aktif</Text></Text>
+            </View>
+
+            <View style={styles.statusCol}>
+              <Ionicons name="navigate-outline" size={22} color="#2E3942" />
+              <Text style={styles.statusLabel}>Panduan: <Text style={styles.statusOk}>ON</Text></Text>
+            </View>
           </View>
 
-          {ACTIVITY.map((opt, idx) => {
-            const selected = activity === opt.key;
-            return (
-              <Pressable
-                key={opt.key}
-                onPress={() => setActivity(opt.key)}
-                style={[
-                  styles.optionRow,
-                  selected && styles.optionRowSelected,
-                  idx !== ACTIVITY.length - 1 && { marginBottom: 10 },
-                ]}
-              >
-                {/* Just the logo, no grey box */}
-                <MaterialCommunityIcons
-                  name="run"
-                  size={20}
-                  color={selected ? '#FFFFFF' : '#111827'}
-                  style={{ marginRight: 12 }}
-                />
+          <Pressable style={[styles.btn, styles.btnDark]} onPress={onTogglePause}>
+            <View style={styles.btnRow}>
+              <MaterialCommunityIcons name={paused ? 'play' : 'pause'} size={16} color="#FFFFFF" />
+              <Text style={styles.btnDarkText}>{paused ? 'Lanjut' : 'Jeda'}</Text>
+            </View>
+          </Pressable>
 
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.optionTitle, selected && styles.optionTitleSelected]}>{opt.title}</Text>
-                  <Text style={[styles.optionSubtitle, selected && styles.optionSubtitleSelected]}>{opt.subtitle}</Text>
-                </View>
-              </Pressable>
-            );
-          })}
+          <Pressable style={[styles.btn, styles.btnGreen]} onPress={onFinish}>
+            <View style={styles.btnRow}>
+              <MaterialCommunityIcons name="check-circle-outline" size={16} color="#FFFFFF" />
+              <Text style={styles.btnGreenText}>Selesai</Text>
+            </View>
+          </Pressable>
         </View>
-
-        <View style={[styles.card, { marginTop: 18 }]}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-            <Ionicons name="location-outline" size={20} color="#111827" style={{ marginRight: 8 }} />
-            <Text style={styles.cardHeaderText}>Pilih Rute Olahraga</Text>
-          </View>
-
-          {ROUTES.map((opt, idx) => {
-            const selected = route === opt.key;
-            return (
-              <Pressable
-                key={opt.key}
-                onPress={() => setRoute(opt.key)}
-                style={[
-                  styles.routeRow,
-                  selected && styles.routeRowSelected,
-                  idx !== ROUTES.length - 1 && { marginBottom: 12 },
-                ]}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.routeTitle, selected && styles.routeTitleSelected]}>{opt.title}</Text>
-                  <Text style={[styles.routeSubtitle, selected && styles.routeSubtitleSelected]}>{opt.subtitle}</Text>
-
-                  {opt.chip && (
-                    <View style={[styles.chip, selected && styles.chipSelected]}>
-                      <Ionicons
-                        name="time-outline"
-                        size={12}
-                        color="#2A363F"
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{opt.chip}</Text>
-                    </View>
-                  )}
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Pressable style={[styles.cta, ready ? styles.ctaEnabled : styles.ctaDisabled]} disabled={!ready}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons
-              name="play-circle-outline"
-              size={18}
-              color={ready ? '#FFFFFF' : '#111827'}
-              style={{ marginRight: 8 }}
-            />
-            <Text style={[styles.ctaText, ready ? styles.ctaTextEnabled : styles.ctaTextDisabled]}>
-              Mulai Olahraga
-            </Text>
-          </View>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  card: {
+    borderRadius: 15,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#DADADA',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
   title: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 24,
-    lineHeight: 30,
+    fontSize: 20,
     color: '#272829',
     textAlign: 'center',
   },
-  subtitle: {
-    marginTop: 4,
-    fontSize: 14,
-    color: '#272829',
-    textAlign: 'center',
-  },
-
-  card: {
-    marginTop: 28,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#DADADA',
-  },
-  cardHeaderText: {
+  timer: {
+    marginTop: 10,
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 19,
+    fontSize: 32,
     color: '#000000',
     textAlign: 'center',
   },
-
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: '#DADADA',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  optionRowSelected: {
-    backgroundColor: '#2A363F',
-    borderColor: '#2A363F',
-  },
-  optionTitle: {
-    fontFamily: 'PoppinsSemiBold',
-    fontWeight: '600',
-    fontSize: 12,
-    color: '#111827',
-  },
-  optionSubtitle: {
-    marginTop: 2,
+  subline: {
+    fontFamily: 'PoppinsMedium',
+    marginTop: 4,
     fontSize: 12,
     color: '#535C60',
+    textAlign: 'center',
   },
-  optionTitleSelected: { color: '#FFFFFF' },
-  optionSubtitleSelected: { color: '#FFFFFF' },
-
-  routeRow: {
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: '#DADADA',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  routeRowSelected: {
-    backgroundColor: '#2A363F',
-    borderColor: '#2A363F',
-  },
-  routeTitle: {
-    fontFamily: 'PoppinsSemiBold',
-    fontWeight: '600',
-    fontSize: 12,
-    color: '#2A363F',
-  },
-  routeSubtitle: {
-    marginTop: 2,
-    fontSize: 12,
-    color: '#535C60',
-  },
-  routeTitleSelected: { color: '#FFFFFF' },
-  routeSubtitleSelected: { color: '#FFFFFF' },
-
-  chip: {
-    marginTop: 10,
-    alignSelf: 'flex-start',
+  statusRow: {
+    marginTop: 18,
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: '#F1F5F9',
+    justifyContent: 'space-between',
   },
-  chipSelected: {
-    backgroundColor: '#F1F5F9',
-  },
-  chipText: {
-    fontSize: 12,
-    color: '#2A363F',
-  },
-  chipTextSelected: {
-    color: '#2A363F',
-  },
+  statusCol: { alignItems: 'center', flex: 1 },
+  statusLabel: { marginTop: 6, fontSize: 12, color: '#000000' },
+  statusOk: { fontFamily: 'PoppinsMedium', color: '#48814C', fontWeight: '500' },
 
-  cta: {
-    marginTop: 22,
-    paddingVertical: 12,
+  btn: {
+    marginTop: 12,
     borderRadius: 12,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ctaDisabled: {
-    backgroundColor: '#878B94',
-  },
-  ctaEnabled: {
-    backgroundColor: '#2A363F',
-  },
-  ctaText: {
-    fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'PoppinsMedium',
-  },
-  ctaTextDisabled: {
-    color: '#FFFFFF',
-  },
-  ctaTextEnabled: {
-    color: '#FFFFFF',
-  },
+  btnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: "transparent" },
+
+  btnDark: { backgroundColor: '#272829' },
+  btnDarkText: { fontFamily: 'PoppinsMedium', color: '#FFFFFF', fontSize: 16, fontWeight: '500'},
+
+  btnGreen: { backgroundColor: '#48814C' },
+  btnGreenText: { fontFamily: 'PoppinsMedium', color: '#FFFFFF', fontSize: 16, fontWeight: '500'},
 });
