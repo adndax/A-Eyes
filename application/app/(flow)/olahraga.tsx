@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   cardHeaderText: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 19,
+    fontSize: 20,
     color: '#000000',
     textAlign: 'center',
   },
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: 14,
     color: '#111827',
   },
   optionSubtitle: {
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   routeTitle: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: 14,
     color: '#2A363F',
   },
   routeSubtitle: {
