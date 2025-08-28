@@ -253,7 +253,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontFamily: 'PoppinsSemiBold',
     color: '#111827',
-    marginBottom: 8,
   },
   pageSubtitle: {
     fontSize: 14,
@@ -317,7 +316,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   summaryButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
     marginLeft: 8,

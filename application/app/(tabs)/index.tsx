@@ -11,13 +11,13 @@ export default function Beranda() {
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 24 }}
-        style={{ paddingHorizontal: 20, paddingTop: 32 }}
+        style={{ paddingHorizontal: 20, paddingTop: 28 }}
       >
-        <View style={{ marginTop: 48 }}>
-          <Text style={{ fontFamily: "PoppinsSemiBold", fontSize: 22, fontWeight: '600', color: '#272829' }}>
+        <View>
+          <Text style={{ fontFamily: "PoppinsSemiBold", fontSize: 28, fontWeight: '600', color: '#272829' }}>
             Selamat Datang, {name}!
           </Text>
-          <Text style={{ fontFamily: "PoppinsMedium", marginTop: 4, fontSize: 12, color: '#272829' }}>
+          <Text style={{ fontFamily: "PoppinsMedium", marginTop: 4, fontSize: 14, color: '#6B7280' }}>
             Pilih aktivitas yang ingin Anda lakukan
           </Text>
         </View>
@@ -60,7 +60,7 @@ export default function Beranda() {
             fontFamily: 'PoppinsSemiBold',
             marginTop: 32,
             marginBottom: 12,
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: '600',
             color: '#374151',
           }}
@@ -121,7 +121,7 @@ function MenuCard({ title, subtitle, icon, onPress, style }: MenuCardProps) {
           style={{
             fontFamily: 'PoppinsMedium',
             textAlign: 'center',
-            fontSize: 11,
+            fontSize: 12,
             lineHeight: 20,
             color: '#535C60',
           }}

@@ -154,7 +154,7 @@ export default function Panduan() {
             Panduan Awal
           </Text>
 
-          <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 4, fontSize: 13, lineHeight: 24, color: '#272829' }}>
+          <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 4, fontSize: 14, lineHeight: 24, color: '#272829' }}>
             Langkah {stepIndex + 1} dari {total}
           </Text>
         </View>
@@ -186,7 +186,7 @@ export default function Panduan() {
               {step.title}
             </Text>
 
-            <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 6, fontSize: 11, color: '#535C60', textAlign: 'center' }}>
+            <Text style={{ fontFamily: 'PoppinsMedium', marginTop: 6, fontSize: 12, color: '#535C60', textAlign: 'center' }}>
               {step.subtitle}
             </Text>
 
@@ -225,7 +225,7 @@ export default function Panduan() {
         </View>
 
         <Pressable onPress={() => router.back()} style={{ alignItems: 'center', marginTop: 32 }}>
-          <Text style={{ fontFamily: 'PoppinsSemiBold', fontWeight: '600', fontSize: 13, color: '#111827' }}>
+          <Text style={{ fontFamily: 'PoppinsSemiBold', fontWeight: '600', fontSize: 14, color: '#111827' }}>
             Lewati Panduan
           </Text>
         </Pressable>
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontFamily: 'PoppinsMedium',
     marginTop: 10,
-    fontSize: 11,
+    fontSize: 14,
     color: '#707070',
     textAlign: 'center',
   },
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   nextDisabledText: {
     fontFamily: 'PoppinsMedium',
     color: '#ffffffff',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
   },
 
@@ -327,8 +327,8 @@ const styles = StyleSheet.create({
   nextDarkText: {
     color: '#FFFFFF',
     fontFamily: 'PoppinsMedium',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    textAlign: 'center',
   },
 
   navRow: {
@@ -355,13 +355,14 @@ const styles = StyleSheet.create({
   ghostBtnText: {
     fontFamily: 'PoppinsMedium',
     color: '#8C8C8C',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
   },
   homeBtnText: {
     fontFamily: 'PoppinsMedium',
     color: '#272829',
-    fontSize: 12,
+    fontSize: 14,
+    textAlign: 'center',
     fontWeight: '500',
   },
 });
