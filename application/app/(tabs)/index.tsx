@@ -81,7 +81,7 @@ export default function Beranda() {
           icon={<FontAwesome5 name="running" size={60} color="#4B5563" />}
           title="Mulai Olahraga"
           subtitle="Olahraga secara mandiri dengan panduan AI"
-          onPress={() => router.push("/olahraga")}
+          onPress={() => router.push("/mulaiolahraga")}
         />
       </ScrollView>
     </View>
