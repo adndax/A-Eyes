@@ -13,18 +13,18 @@ type Option = {
 
 const ACTIVITY: Option[] = [
   { key: 'santai', title: 'Jalan Santai', subtitle: 'Kecepatan rendah, santai' },
-  { key: 'cepat',  title: 'Jalan Cepat',  subtitle: 'Kecepatan sedang, aktif' },
-  { key: 'lari',   title: 'Lari',         subtitle: 'Kecepatan tinggi, intensif' },
+  { key: 'cepat', title: 'Jalan Cepat', subtitle: 'Kecepatan sedang, aktif' },
+  { key: 'lari', title: 'Lari', subtitle: 'Kecepatan tinggi, intensif' },
 ];
 
 const ROUTES: Option[] = [
-  { key: 'taman',      title: 'Rute Taman',        subtitle: 'Jalur taman dengan trek rata',  chip: '15–30 menit' },
-  { key: 'perumahan',  title: 'Rute Perumahan',    subtitle: 'Jalur sekitar perumahan',       chip: '20–40 menit' },
-  { key: 'track',      title: 'Rute Track',        subtitle: 'Jalur atletik standar',         chip: '10–20 menit' },
-  { key: 'custom',     title: 'Buat Rute Sendiri', subtitle: 'Tentukan jalur sesuai keinginan', chip: 'Bebas' },
+  { key: 'taman', title: 'Rute Taman', subtitle: 'Jalur taman dengan trek rata', chip: '15–30 menit' },
+  { key: 'perumahan', title: 'Rute Perumahan', subtitle: 'Jalur sekitar perumahan', chip: '20–40 menit' },
+  { key: 'track', title: 'Rute Track', subtitle: 'Jalur atletik standar', chip: '10–20 menit' },
+  { key: 'custom', title: 'Buat Rute Sendiri', subtitle: 'Tentukan jalur sesuai keinginan', chip: 'Bebas' },
 ];
 
-export default function Latihan() {
+export default function MulaiOlahraga() {
   const insets = useSafeAreaInsets();
   const [activity, setActivity] = useState<string | null>(null);
   const [route, setRoute] = useState<string | null>(null);
@@ -35,107 +35,88 @@ export default function Latihan() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <ScrollView
         style={{ paddingHorizontal: 20 }}
-        contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 28 }}
+        contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: 28 }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {/* Header */}
-        <View style={{ alignItems: 'center', marginTop: 4 }}>
+        <View style={{ alignItems: 'center', marginTop: 6 }}>
           <Text style={styles.title}>Mulai Olahraga</Text>
           <Text style={styles.subtitle}>Pilih mode dan rute olahraga Anda</Text>
         </View>
 
-        {/* Card: Pilih Mode Aktivitas */}
         <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <MaterialCommunityIcons name="pulse" size={20} color="#111827" />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+            <MaterialCommunityIcons name="pulse" size={20} color="#111827" style={{ marginRight: 8 }} />
             <Text style={styles.cardHeaderText}>Pilih Mode Aktivitas</Text>
           </View>
 
-          <View style={{ marginTop: 12 }}>
-            {ACTIVITY.map((opt, idx) => {
-              const selected = activity === opt.key;
-              return (
-                <Pressable
-                  key={opt.key}
-                  onPress={() => setActivity(opt.key)}
-                  style={[
-                    styles.optionRow,
-                    selected && styles.optionRowSelected,
-                    idx !== ACTIVITY.length - 1 && { marginBottom: 10 },
-                  ]}
-                >
-                  <View style={styles.optionIconBox}>
-                    <MaterialCommunityIcons
-                      name="run"
-                      size={18}
-                      color={selected ? '#FFFFFF' : '#111827'}
-                    />
-                  </View>
+          {ACTIVITY.map((opt, idx) => {
+            const selected = activity === opt.key;
+            return (
+              <Pressable
+                key={opt.key}
+                onPress={() => setActivity(opt.key)}
+                style={[
+                  styles.optionRow,
+                  selected && styles.optionRowSelected,
+                  idx !== ACTIVITY.length - 1 && { marginBottom: 10 },
+                ]}
+              >
+                {/* Just the logo, no grey box */}
+                <MaterialCommunityIcons
+                  name="run"
+                  size={20}
+                  color={selected ? '#FFFFFF' : '#111827'}
+                  style={{ marginRight: 12 }}
+                />
 
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.optionTitle, selected && styles.optionTitleSelected]}>
-                      {opt.title}
-                    </Text>
-                    <Text style={[styles.optionSubtitle, selected && styles.optionSubtitleSelected]}>
-                      {opt.subtitle}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.optionTitle, selected && styles.optionTitleSelected]}>{opt.title}</Text>
+                  <Text style={[styles.optionSubtitle, selected && styles.optionSubtitleSelected]}>{opt.subtitle}</Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
 
-        {/* Card: Pilih Rute Olahraga */}
         <View style={[styles.card, { marginTop: 18 }]}>
-          <View style={styles.cardHeaderRow}>
-            <Ionicons name="location-outline" size={20} color="#111827" />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+            <Ionicons name="location-outline" size={20} color="#111827" style={{ marginRight: 8 }} />
             <Text style={styles.cardHeaderText}>Pilih Rute Olahraga</Text>
           </View>
 
-          <View style={{ marginTop: 12 }}>
-            {ROUTES.map((opt, idx) => {
-              const selected = route === opt.key;
-              return (
-                <Pressable
-                  key={opt.key}
-                  onPress={() => setRoute(opt.key)}
-                  style={[
-                    styles.routeRow,
-                    selected && styles.routeRowSelected,
-                    idx !== ROUTES.length - 1 && { marginBottom: 12 },
-                  ]}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.routeTitle, selected && styles.routeTitleSelected]}>
-                      {opt.title}
-                    </Text>
-                    <Text style={[styles.routeSubtitle, selected && styles.routeSubtitleSelected]}>
-                      {opt.subtitle}
-                    </Text>
+          {ROUTES.map((opt, idx) => {
+            const selected = route === opt.key;
+            return (
+              <Pressable
+                key={opt.key}
+                onPress={() => setRoute(opt.key)}
+                style={[
+                  styles.routeRow,
+                  selected && styles.routeRowSelected,
+                  idx !== ROUTES.length - 1 && { marginBottom: 12 },
+                ]}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.routeTitle, selected && styles.routeTitleSelected]}>{opt.title}</Text>
+                  <Text style={[styles.routeSubtitle, selected && styles.routeSubtitleSelected]}>{opt.subtitle}</Text>
 
-                    {/* duration chip */}
-                    {opt.chip && (
-                      <View style={[styles.chip, selected && styles.chipSelected]}>
-                        <Ionicons
-                          name="time-outline"
-                          size={12}
-                          color={selected ? '#E5E7EB' : '#4B5563'}
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                          {opt.chip}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
+                  {opt.chip && (
+                    <View style={[styles.chip, selected && styles.chipSelected]}>
+                      <Ionicons
+                        name="time-outline"
+                        size={12}
+                        color="#2A363F"
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{opt.chip}</Text>
+                    </View>
+                  )}
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
 
-        {/* CTA */}
         <Pressable style={[styles.cta, ready ? styles.ctaEnabled : styles.ctaDisabled]} disabled={!ready}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons
@@ -154,104 +135,91 @@ export default function Latihan() {
   );
 }
 
-/* ================= STYLES ================ */
 const styles = StyleSheet.create({
   title: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
     fontSize: 24,
-    lineHeight: 24,
+    lineHeight: 30,
     color: '#272829',
     textAlign: 'center',
   },
   subtitle: {
-    marginTop: 6,
+    marginTop: 4,
     fontSize: 14,
-    color: '#6B7280',
+    color: '#272829',
     textAlign: 'center',
   },
 
   card: {
-    marginTop: 18,
+    marginTop: 28,
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#DADADA',
   },
   cardHeaderText: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 16,
-    color: '#111827',
+    fontSize: 19,
+    color: '#000000',
+    textAlign: 'center',
   },
 
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#DADADA',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   optionRowSelected: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
-  },
-  optionIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: '#E5E7EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    backgroundColor: '#2A363F',
+    borderColor: '#2A363F',
   },
   optionTitle: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 12,
     color: '#111827',
   },
   optionSubtitle: {
     marginTop: 2,
     fontSize: 12,
-    color: '#6B7280',
+    color: '#535C60',
   },
   optionTitleSelected: { color: '#FFFFFF' },
-  optionSubtitleSelected: { color: '#E5E7EB' },
+  optionSubtitleSelected: { color: '#FFFFFF' },
 
   routeRow: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#DADADA',
     backgroundColor: '#FFFFFF',
-    padding: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   routeRowSelected: {
-    backgroundColor: '#2E3942', // slightly lighter than full black for contrast
-    borderColor: '#2E3942',
+    backgroundColor: '#2A363F',
+    borderColor: '#2A363F',
   },
   routeTitle: {
     fontFamily: 'PoppinsSemiBold',
     fontWeight: '600',
-    fontSize: 13.5,
-    color: '#111827',
+    fontSize: 12,
+    color: '#2A363F',
   },
   routeSubtitle: {
     marginTop: 2,
     fontSize: 12,
-    color: '#6B7280',
+    color: '#535C60',
   },
   routeTitleSelected: { color: '#FFFFFF' },
-  routeSubtitleSelected: { color: '#E5E7EB' },
+  routeSubtitleSelected: { color: '#FFFFFF' },
 
   chip: {
     marginTop: 10,
@@ -261,38 +229,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#EEF2F7',
+    backgroundColor: '#F1F5F9',
   },
   chipSelected: {
-    backgroundColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: '#F1F5F9',
   },
   chipText: {
     fontSize: 12,
-    color: '#4B5563',
+    color: '#2A363F',
   },
   chipTextSelected: {
-    color: '#E5E7EB',
+    color: '#2A363F',
   },
 
   cta: {
     marginTop: 22,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   ctaDisabled: {
-    backgroundColor: '#9CA3AF',
+    backgroundColor: '#878B94',
   },
   ctaEnabled: {
-    backgroundColor: '#111827',
+    backgroundColor: '#2A363F',
   },
   ctaText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'PoppinsMedium',
   },
   ctaTextDisabled: {
-    color: '#111827',
+    color: '#FFFFFF',
   },
   ctaTextEnabled: {
     color: '#FFFFFF',
