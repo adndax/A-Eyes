@@ -22,12 +22,12 @@ function CustomTabBarItem({
     <View
       style={{
         backgroundColor: focused ? "#272829" : "transparent",
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: 4,
+        paddingVertical: 18,
         borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
-        minWidth: 60,
+        minWidth: 64,
       }}
     >
       <Image
@@ -74,7 +74,7 @@ export default function TabLayout() {
         tabBarStyle: {
           paddingBottom: 10,
           paddingTop: 12,
-          height: 70,
+          height: 80,
           backgroundColor: Colors[colorScheme ?? "light"].background,
         },
       }}
