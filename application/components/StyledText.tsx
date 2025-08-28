@@ -1,5 +1,17 @@
-import { Text, TextProps } from './Themed';
+import { Text, TextProps } from 'react-native';
 
-export function MonoText(props: TextProps) {
-  return <Text {...props} style={[props.style, { fontFamily: 'SpaceMono' }]} />;
+type FontWeight = 'regular' | 'bold' | 'semibold' | 'light' | 'medium';
+
+interface PoppinsTextProps extends TextProps {
+  weight?: FontWeight;
+}
+
+export function PoppinsText({ weight = 'regular', style, ...props }: PoppinsTextProps) {
+  let fontFamily = 'PoppinsRegular';
+  if (weight === 'bold') fontFamily = 'PoppinsBold';
+  if (weight === 'semibold') fontFamily = 'PoppinsSemiBold';
+  if (weight === 'light') fontFamily = 'PoppinsLight';
+  if (weight === 'medium') fontFamily = 'PoppinsMedium';
+
+  return <Text {...props} style={[style, { fontFamily }]} />;
 }
