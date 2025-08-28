@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   summaryButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'PoppinsMedium',
     color: '#374151',
     marginLeft: 8,
