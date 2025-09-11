@@ -1,5 +1,5 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const logger = require('./logger');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const logger = require("./logger");
 
 class AIService {
   constructor() {
@@ -8,23 +8,25 @@ class AIService {
     this.ready = false;
     this.config = {
       apiKey: process.env.GEMINI_API_KEY,
-      modelName: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-      timeout: parseInt(process.env.PROCESSING_TIMEOUT) || 30000
+      modelName: process.env.GEMINI_MODEL || "gemini-1.5-flash",
+      timeout: parseInt(process.env.PROCESSING_TIMEOUT) || 30000,
     };
   }
 
   async initialize() {
     if (!this.config.apiKey) {
-      throw new Error('GEMINI_API_KEY not configured');
+      throw new Error("GEMINI_API_KEY not configured");
     }
 
     try {
       this.genAI = new GoogleGenerativeAI(this.config.apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: this.config.modelName });
+      this.model = this.genAI.getGenerativeModel({
+        model: this.config.modelName,
+      });
       this.ready = true;
-      logger.info('Gemini AI service initialized');
+      logger.info("Gemini AI service initialized");
     } catch (error) {
-      logger.error('Failed to initialize Gemini AI', error);
+      logger.error("Failed to initialize Gemini AI", error);
       throw error;
     }
   }
@@ -35,11 +37,11 @@ class AIService {
 
   async analyzeImage(imageBuffer) {
     if (!this.ready) {
-      throw new Error('AI service not ready');
+      throw new Error("AI service not ready");
     }
 
-    const base64Image = imageBuffer.toString('base64');
-    
+    const base64Image = imageBuffer.toString("base64");
+
     const prompt = `
 Analyze this image for object detection. Return a JSON response with this exact structure:
 {
@@ -49,7 +51,7 @@ Analyze this image for object detection. Return a JSON response with this exact 
       "confidence": 0.95,
       "position": {
         "angle": -15,
-        "distance": "medium",
+        "distance": "2",
         "relative_size": "small"
       },
       "bbox": {
@@ -67,7 +69,7 @@ Analyze this image for object detection. Return a JSON response with this exact 
 
 Requirements:
 - angle: -90 to +90 degrees (0 = center, negative = left, positive = right)
-- distance: "close", "medium", or "far"
+- distance: "1", "2", or "3"
 - relative_size: "small", "medium", or "large"  
 - bbox: coordinates as percentages (0-100)
 - confidence: 0.0 to 1.0 for overall analysis quality
@@ -77,30 +79,32 @@ Provide accurate position estimates based on object placement in the frame.`;
     const imagePart = {
       inlineData: {
         data: base64Image,
-        mimeType: 'image/jpeg'
-      }
+        mimeType: "image/jpeg",
+      },
     };
 
     try {
       const startTime = Date.now();
-      
+
       const result = await Promise.race([
         this.model.generateContent([prompt, imagePart]),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Analysis timeout')), this.config.timeout)
-        )
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Analysis timeout")),
+            this.config.timeout
+          )
+        ),
       ]);
 
       const response = await result.response;
       const text = response.text();
-      
+
       const processingTime = Date.now() - startTime;
-      logger.debug('Gemini analysis completed', { processingTime });
-      
+      logger.debug("Gemini analysis completed", { processingTime });
+
       return this.parseAnalysisResult(text);
-      
     } catch (error) {
-      logger.error('Gemini analysis failed', error);
+      logger.error("Gemini analysis failed", error);
       throw new Error(`AI analysis failed: ${error.message}`);
     }
   }
@@ -108,30 +112,32 @@ Provide accurate position estimates based on object placement in the frame.`;
   parseAnalysisResult(text) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error('Invalid AI response format');
+      throw new Error("Invalid AI response format");
     }
 
     const result = JSON.parse(jsonMatch[0]);
-    
+
     return {
-      objects: (result.objects || []).map(obj => ({
-        name: obj.name || 'unknown',
+      objects: (result.objects || []).map((obj) => ({
+        name: obj.name || "unknown",
         confidence: this.clamp(obj.confidence || 0.5, 0, 1),
         position: {
           angle: this.clamp(obj.position?.angle || 0, -90, 90),
           distance: this.validateDistance(obj.position?.distance),
-          relative_size: this.validateSize(obj.position?.relative_size)
+          relative_size: this.validateSize(obj.position?.relative_size),
         },
-        bbox: obj.bbox ? {
-          x: this.clamp(obj.bbox.x || 0, 0, 100),
-          y: this.clamp(obj.bbox.y || 0, 0, 100),
-          width: this.clamp(obj.bbox.width || 0, 0, 100),
-          height: this.clamp(obj.bbox.height || 0, 0, 100)
-        } : null
+        bbox: obj.bbox
+          ? {
+              x: this.clamp(obj.bbox.x || 0, 0, 100),
+              y: this.clamp(obj.bbox.y || 0, 0, 100),
+              width: this.clamp(obj.bbox.width || 0, 0, 100),
+              height: this.clamp(obj.bbox.height || 0, 0, 100),
+            }
+          : null,
       })),
-      scene_description: result.scene_description || 'Scene analyzed',
+      scene_description: result.scene_description || "Scene analyzed",
       total_objects: result.objects?.length || 0,
-      confidence: this.clamp(result.confidence || 0.8, 0, 1)
+      confidence: this.clamp(result.confidence || 0.8, 0, 1),
     };
   }
 
@@ -141,12 +147,12 @@ Provide accurate position estimates based on object placement in the frame.`;
 
   validateDistance(distance) {
     const distanceNum = parseInt(distance);
-    return (distanceNum >= 1 && distanceNum <= 3) ? distanceNum : 2;
+    return distanceNum >= 1 && distanceNum <= 3 ? distanceNum : 2;
   }
 
   validateSize(size) {
-    const valid = ['small', 'medium', 'large'];
-    return valid.includes(size) ? size : 'medium';
+    const valid = ["small", "medium", "large"];
+    return valid.includes(size) ? size : "medium";
   }
 }
 
