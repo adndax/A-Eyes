@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-BROKER = "192.168.1.12"
+BROKER = "192.168.1.9"
 PORT = 1883
 TOPIC = "home/cam/1/image"
 STORAGE_DIR = "../storage/images"

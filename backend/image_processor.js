@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const { promisify } = require('util');
-require('dotenv').config();
+const fs = require("fs");
+const path = require("path");
+const { promisify } = require("util");
+require("dotenv").config();
 
-const AIService = require('./services/ai');
+const AIService = require("./services/ai");
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -13,35 +13,25 @@ class ImageProcessor {
   constructor() {
     this.aiService = null;
     this.processing = false;
-    this.queueFile = './storage/process_queue.txt';
-    this.resultDir = './storage/results';
-    this.processedFile = './storage/processed_log.txt';
-    this.checkInterval = 2000; // Check every 2 seconds
+    this.queueFile = "./storage/process_queue.txt";
+    this.resultDir = "./storage/results";
+    this.processedFile = "./storage/processed_log.txt";
+    this.checkInterval = 2000;
   }
 
   async initialize() {
-    try {
-      // Initialize AI service
-      this.aiService = new AIService();
-      await this.aiService.initialize();
-      
-      // Ensure directories exist
-      await this.ensureDirectories();
-      
-      console.log('🤖 Image Processor initialized');
-      console.log(`📁 Results will be saved to: ${this.resultDir}`);
-      
-      // Start monitoring
-      this.startMonitoring();
-      
-    } catch (error) {
-      console.error('Failed to initialize processor:', error.message);
-      throw error;
-    }
+    this.aiService = new AIService();
+    await this.aiService.initialize();
+    await this.ensureDirectories();
+
+    console.log("Image Processor initialized");
+    console.log(`Results directory: ${this.resultDir}`);
+
+    this.startMonitoring();
   }
 
   async ensureDirectories() {
-    const dirs = ['./storage', './storage/images', this.resultDir];
+    const dirs = ["./storage", "./storage/images", this.resultDir];
     for (const dir of dirs) {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -50,8 +40,8 @@ class ImageProcessor {
   }
 
   startMonitoring() {
-    console.log('👀 Monitoring for new images...');
-    
+    console.log("Monitoring for new images...");
+
     setInterval(() => {
       if (!this.processing) {
         this.processQueue();
@@ -61,15 +51,16 @@ class ImageProcessor {
 
   async processQueue() {
     try {
-      // Check if queue file exists
       if (!fs.existsSync(this.queueFile)) {
         return;
       }
 
-      // Read queue file
-      const queueContent = await readFile(this.queueFile, 'utf8');
-      const lines = queueContent.trim().split('\n').filter(line => line.length > 0);
-      
+      const queueContent = await readFile(this.queueFile, "utf8");
+      const lines = queueContent
+        .trim()
+        .split("\n")
+        .filter((line) => line.length > 0);
+
       if (lines.length === 0) {
         return;
       }
@@ -77,112 +68,107 @@ class ImageProcessor {
       this.processing = true;
       console.log(`Processing ${lines.length} items in queue`);
 
-      // Process each item
       for (const line of lines) {
         try {
           const queueItem = JSON.parse(line);
           await this.processImage(queueItem);
         } catch (error) {
-          console.error('Error processing queue item:', error.message);
+          console.error("Error processing queue item:", error.message);
         }
       }
 
-      // Clear the queue file after processing
-      await writeFile(this.queueFile, '');
+      await writeFile(this.queueFile, "");
       this.processing = false;
-
     } catch (error) {
-      console.error('Error processing queue:', error.message);
+      console.error("Error processing queue:", error.message);
       this.processing = false;
     }
   }
 
   async processImage(queueItem) {
     const { filename, filepath, timestamp, sequence } = queueItem;
-    
+
     try {
       console.log(`\nProcessing: ${filename}`);
-      console.log('=' .repeat(60));
-      
-      // Check if image file exists
+      console.log("=".repeat(60));
+
       if (!fs.existsSync(filepath)) {
         console.log(`Image file not found: ${filepath}`);
         return;
       }
 
-      // Read image
       const imageBuffer = await readFile(filepath);
       console.log(`Image size: ${imageBuffer.length.toLocaleString()} bytes`);
-      
-      // Analyze with Gemini
+
       const startTime = Date.now();
       const result = await this.aiService.analyzeImage(imageBuffer);
       const processingTime = Date.now() - startTime;
-      
-      // Create analysis result
+
       const analysisResult = {
         metadata: {
           filename,
           timestamp,
           sequence,
           processing_time: processingTime,
-          processed_at: new Date().toISOString()
+          processed_at: new Date().toISOString(),
         },
-        analysis: result
+        analysis: result,
       };
-      
-      // Display results
+
       console.log(`Processing time: ${processingTime}ms`);
       console.log(`Objects detected: ${result.total_objects}`);
       console.log(`Scene: ${result.scene_description}`);
       console.log(`Confidence: ${(result.confidence * 100).toFixed(1)}%`);
-      
+
       if (result.objects && result.objects.length > 0) {
-        console.log('\nDetected Objects:');
+        console.log("\nDetected Objects:");
         result.objects.forEach((obj, index) => {
           console.log(`  ${index + 1}. ${obj.name}`);
-          console.log(`     • Confidence: ${(obj.confidence * 100).toFixed(1)}%`);
-          console.log(`     • Angle: ${obj.position.angle}°`);
-          console.log(`     • Distance: Level ${obj.position.distance}`);
-          console.log(`     • Size: ${obj.position.relative_size}`);
+          console.log(`     Confidence: ${(obj.confidence * 100).toFixed(1)}%`);
+          console.log(`     Angle: ${obj.position.angle}°`);
+          console.log(`     Distance: Level ${obj.position.distance}`);
+          console.log(`     Size: ${obj.position.relative_size}`);
           if (obj.bbox) {
-            console.log(`     • BBox: x:${obj.bbox.x}% y:${obj.bbox.y}% w:${obj.bbox.width}% h:${obj.bbox.height}%`);
+            console.log(
+              `     BBox: x:${obj.bbox.x}% y:${obj.bbox.y}% w:${obj.bbox.width}% h:${obj.bbox.height}%`
+            );
           }
         });
       }
-      
-      // Save result to JSON file
+
       const baseName = path.parse(filename).name;
       const resultFilename = `${baseName}_analysis.json`;
       const resultPath = path.join(this.resultDir, resultFilename);
-      
+
       await writeFile(resultPath, JSON.stringify(analysisResult, null, 2));
-      console.log(`💾 Analysis saved: ${resultFilename}`);
-      
-      // Log processed item
+      console.log(`Analysis saved: ${resultFilename}`);
+
       const logEntry = {
         timestamp: new Date().toISOString(),
         filename,
         sequence,
         objects_detected: result.total_objects,
         processing_time: processingTime,
-        result_file: resultFilename
+        result_file: resultFilename,
       };
-      
-      await appendFile(this.processedFile, JSON.stringify(logEntry) + '\n');
-      
+
+      await appendFile(this.processedFile, JSON.stringify(logEntry) + "\n");
+
+      console.log(`Processing completed for ${filename}`);
     } catch (error) {
       console.error(`Error processing ${filename}:`, error.message);
-      
-      // Log error
+
       const errorEntry = {
         timestamp: new Date().toISOString(),
         filename,
         error: error.message,
-        sequence
+        sequence,
       };
-      
-      await appendFile('./storage/error_log.txt', JSON.stringify(errorEntry) + '\n');
+
+      await appendFile(
+        "./storage/error_log.txt",
+        JSON.stringify(errorEntry) + "\n"
+      );
     }
   }
 
@@ -192,60 +178,75 @@ class ImageProcessor {
         total_processed: 0,
         total_objects_detected: 0,
         average_processing_time: 0,
-        last_processed: null
+        last_processed: null,
       };
 
       if (fs.existsSync(this.processedFile)) {
-        const logContent = await readFile(this.processedFile, 'utf8');
-        const entries = logContent.trim().split('\n')
-          .filter(line => line.length > 0)
-          .map(line => JSON.parse(line));
+        const logContent = await readFile(this.processedFile, "utf8");
+        const entries = logContent
+          .trim()
+          .split("\n")
+          .filter((line) => line.length > 0)
+          .map((line) => JSON.parse(line));
 
         stats.total_processed = entries.length;
-        stats.total_objects_detected = entries.reduce((sum, entry) => sum + entry.objects_detected, 0);
-        stats.average_processing_time = entries.reduce((sum, entry) => sum + entry.processing_time, 0) / entries.length;
+        stats.total_objects_detected = entries.reduce(
+          (sum, entry) => sum + entry.objects_detected,
+          0
+        );
+        stats.average_processing_time =
+          entries.reduce((sum, entry) => sum + entry.processing_time, 0) /
+          entries.length;
         stats.last_processed = entries[entries.length - 1]?.timestamp;
       }
 
       return stats;
     } catch (error) {
-      console.error('Error getting stats:', error.message);
+      console.error("Error getting stats:", error.message);
       return null;
     }
   }
 }
 
-// Main execution
 async function main() {
-  console.log('🚀 Starting Image Processor');
-  
+  console.log("Starting Image Processor");
+
   try {
     const processor = new ImageProcessor();
     await processor.initialize();
-    
-    // Keep the process running
-    process.on('SIGINT', async () => {
-      console.log('\nShutting down...');
+
+    process.on("SIGINT", async () => {
+      console.log("\nShutting down...");
       const stats = await processor.getStats();
       if (stats) {
-        console.log('\n📊 Final Stats:');
+        console.log("\nFinal Stats:");
         console.log(`   Total processed: ${stats.total_processed}`);
-        console.log(`   Total objects detected: ${stats.total_objects_detected}`);
-        console.log(`   Average processing time: ${stats.average_processing_time?.toFixed(0)}ms`);
+        console.log(
+          `   Total objects detected: ${stats.total_objects_detected}`
+        );
+        console.log(
+          `   Average processing time: ${stats.average_processing_time?.toFixed(
+            0
+          )}ms`
+        );
       }
       process.exit(0);
     });
-    
-    // Display stats every 30 seconds
+
     setInterval(async () => {
       const stats = await processor.getStats();
       if (stats && stats.total_processed > 0) {
-        console.log(`\nStats: ${stats.total_processed} processed | ${stats.total_objects_detected} objects detected | Avg: ${stats.average_processing_time?.toFixed(0)}ms`);
+        console.log(
+          `\nStats: ${stats.total_processed} processed | ${
+            stats.total_objects_detected
+          } objects detected | Avg: ${stats.average_processing_time?.toFixed(
+            0
+          )}ms`
+        );
       }
     }, 30000);
-    
   } catch (error) {
-    console.error('Failed to start processor:', error.message);
+    console.error("Failed to start processor:", error.message);
     process.exit(1);
   }
 }
