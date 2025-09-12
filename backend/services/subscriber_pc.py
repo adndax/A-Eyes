@@ -37,14 +37,16 @@ def on_message(client, userdata, msg):
         filename = f"frame_{sequence}_{current_time.strftime('%Y%m%d_%H%M%S')}.jpg"
         filepath = os.path.join(STORAGE_DIR, filename)
         
+        absolute_filepath = os.path.abspath(filepath)
+
         with open(filepath, "wb") as f:
             f.write(img_bytes)
         
-        print(f"Saved: {filename} ({len(img_bytes):,} bytes)")
+        print(f"Saved: {filename} ({len(img_bytes):,} bytes) at {absolute_filepath}")
         
         queue_entry = {
             "filename": filename,
-            "filepath": filepath,
+            "filepath": absolute_filepath,
             "timestamp": timestamp,
             "sequence": sequence,
             "size": len(img_bytes),
