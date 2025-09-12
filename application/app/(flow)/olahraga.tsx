@@ -4,6 +4,7 @@ import { Text, View } from '@/components/Themed';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { initSpatialAudio, playObstacleAlert } from '../lib/spatialAudio';
 
 function formatMMSS(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60);
@@ -11,6 +12,19 @@ function formatMMSS(totalSeconds: number) {
   const mm = String(m).padStart(2, '0');
   const ss = String(s).padStart(2, '0');
   return `${mm}:${ss}`;
+}
+
+// Dummy obstacle detection function - replace with actual camera/AI detection
+function detectObstacles(): { angle: number; distance: number } | null {
+  // Simulate random obstacle detection for demo
+  const hasObstacle = Math.random() < 0.3; // 30% chance of obstacle
+  
+  if (!hasObstacle) return null;
+  
+  return {
+    angle: (Math.random() - 0.5) * 180, // -90 to 90 degrees
+    distance: Math.floor(Math.random() * 3) + 1 // 1=near, 2=mid, 3=far
+  };
 }
 
 export default function SesiOlahraga() {
@@ -23,9 +37,16 @@ export default function SesiOlahraga() {
 
   const [seconds, setSeconds] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [guidanceEnabled, setGuidanceEnabled] = useState(true);
+  const [lastObstacleTime, setLastObstacleTime] = useState(0);
 
   const distanceRef = useRef(0);
   const [distance, setDistance] = useState(0);
+  const isPlayingAlert = useRef(false);
+
+  useEffect(() => {
+    initSpatialAudio().catch(console.error);
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -38,10 +59,53 @@ export default function SesiOlahraga() {
     return () => clearInterval(id);
   }, [paused]);
 
+  // Obstacle detection loop
+  useEffect(() => {
+    if (!guidanceEnabled || paused) return;
+
+    const obstacleCheckInterval = setInterval(async () => {
+      const currentTime = Date.now();
+      
+      // Prevent overlapping alerts (minimum 3 seconds between alerts)
+      if (currentTime - lastObstacleTime < 3000 || isPlayingAlert.current) {
+        return;
+      }
+
+      const obstacle = detectObstacles();
+      
+      if (obstacle) {
+        console.log(`Obstacle detected: ${obstacle.angle}° at distance level ${obstacle.distance}`);
+        
+        isPlayingAlert.current = true;
+        setLastObstacleTime(currentTime);
+        
+        try {
+          // Play spatial audio alert
+          await playObstacleAlert(obstacle.angle, obstacle.distance, 2000);
+        } catch (error) {
+          console.error('Error playing obstacle alert:', error);
+        } finally {
+          isPlayingAlert.current = false;
+        }
+      }
+    }, 1500); // Check every 1.5 seconds
+
+    return () => clearInterval(obstacleCheckInterval);
+  }, [guidanceEnabled, paused, lastObstacleTime]);
+
   const durMMSS = formatMMSS(seconds);
   const distanceKm = useMemo(() => (distance / 1000).toFixed(1).replace('.', ','), [distance]);
 
   const onTogglePause = () => setPaused((p) => !p);
+  
+  const onToggleGuidance = () => {
+    setGuidanceEnabled((prev) => !prev);
+    if (isPlayingAlert.current) {
+      // Stop any current alert when guidance is disabled
+      isPlayingAlert.current = false;
+    }
+  };
+
   const onFinish = () => {
     router.replace({
       pathname: '/olahragaSelesai',
@@ -49,7 +113,7 @@ export default function SesiOlahraga() {
         durasi: durMMSS,
         jarakKm: distanceKm,
         status: paused ? 'aktif & jeda' : 'aktif & stabil',
-        panduan: 'ON',
+        panduan: guidanceEnabled ? 'ON' : 'OFF',
         mode,
         rute,
       },
@@ -60,7 +124,7 @@ export default function SesiOlahraga() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <ScrollView
         style={{ paddingHorizontal: 20 }}
-        contentContainerStyle={{ paddingTop: insets.top + 120, paddingBottom: 28 }}
+        contentContainerStyle={{ paddingTop: insets.top + 170, paddingBottom: 28 }}
         contentInsetAdjustmentBehavior="automatic"
       >
         <View style={styles.card}>
@@ -71,13 +135,23 @@ export default function SesiOlahraga() {
           <View style={styles.statusRow}>
             <View style={styles.statusCol}>
               <MaterialCommunityIcons name="pulse" size={22} color="#2E3942" />
-              <Text style={styles.statusLabel}>Status: <Text style={styles.statusOk}>Aktif</Text></Text>
+              <Text style={styles.statusLabel}>
+                Status: <Text style={styles.statusOk}>Aktif</Text>
+              </Text>
             </View>
 
-            <View style={styles.statusCol}>
-              <Ionicons name="navigate-outline" size={22} color="#2E3942" />
-              <Text style={styles.statusLabel}>Panduan: <Text style={styles.statusOk}>ON</Text></Text>
-            </View>
+            <Pressable style={styles.statusCol} onPress={onToggleGuidance}>
+              <Ionicons 
+                name={guidanceEnabled ? "navigate" : "navigate-outline"} 
+                size={22} 
+                color={guidanceEnabled ? "#48814C" : "#2E3942"} 
+              />
+              <Text style={styles.statusLabel}>
+                Panduan: <Text style={guidanceEnabled ? styles.statusOk : styles.statusOff}>
+                  {guidanceEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Text>
+            </Pressable>
           </View>
 
           <Pressable style={[styles.btn, styles.btnDark]} onPress={onTogglePause}>
@@ -142,6 +216,7 @@ const styles = StyleSheet.create({
   statusCol: { alignItems: 'center', flex: 1 },
   statusLabel: { marginTop: 6, fontSize: 12, color: '#000000' },
   statusOk: { fontFamily: 'PoppinsMedium', color: '#48814C', fontWeight: '500' },
+  statusOff: { fontFamily: 'PoppinsMedium', color: '#CC4125', fontWeight: '500' },
 
   btn: {
     marginTop: 12,
