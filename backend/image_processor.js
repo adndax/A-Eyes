@@ -172,6 +172,18 @@ class ImageProcessor {
     }
   }
 
+  async updateLatestResult(analysisResult) {
+    try {
+      await writeFile(
+        this.latestResultFile,
+        JSON.stringify(analysisResult, null, 2)
+      );
+      console.log("Latest result updated: latest_analysis.json");
+    } catch (error) {
+      console.error("Failed to update latest result:", error.message);
+    }
+  }
+
   async getStats() {
     try {
       const stats = {

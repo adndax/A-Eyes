@@ -12,7 +12,6 @@ STORAGE_DIR = "../storage/images"
 TRIGGER_FILE = "../storage/process_queue.txt"
 
 def ensure_directories():
-    """Create required directories"""
     Path(STORAGE_DIR).mkdir(parents=True, exist_ok=True)
     Path("../storage").mkdir(parents=True, exist_ok=True)
 
@@ -27,27 +26,22 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     try:
-        # Parse MQTT message
         data = json.loads(msg.payload.decode("utf-8"))
         b64_image = data["image_b64"]
         sequence = data.get("seq", "unknown")
         timestamp = data.get("timestamp", datetime.now().isoformat())
         
-        # Decode base64 image
         img_bytes = base64.b64decode(b64_image)
         
-        # Generate filename with timestamp
         current_time = datetime.now()
         filename = f"frame_{sequence}_{current_time.strftime('%Y%m%d_%H%M%S')}.jpg"
         filepath = os.path.join(STORAGE_DIR, filename)
         
-        # Save image
         with open(filepath, "wb") as f:
             f.write(img_bytes)
         
         print(f"Saved: {filename} ({len(img_bytes):,} bytes)")
         
-        # Create processing queue entry
         queue_entry = {
             "filename": filename,
             "filepath": filepath,
@@ -57,11 +51,10 @@ def on_message(client, userdata, msg):
             "received_at": current_time.isoformat()
         }
         
-        # Append to processing queue
         with open(TRIGGER_FILE, "a") as f:
             f.write(json.dumps(queue_entry) + "\n")
         
-        print(f"📝 Added to processing queue: {filename}")
+        print(f"Added to processing queue: {filename}")
         
     except json.JSONDecodeError:
         print("Invalid JSON in MQTT message")
@@ -75,17 +68,15 @@ def on_disconnect(client, userdata, rc):
 def main():
     print("Starting MQTT Image Subscriber")
     
-    # Ensure directories exist
     ensure_directories()
     
-    # Setup MQTT client
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     client.on_connect = on_connect
     client.on_message = on_message
     client.on_disconnect = on_disconnect
     
     try:
-        print(f"🔌 Connecting to broker: {BROKER}:{PORT}")
+        print(f"Connecting to broker: {BROKER}:{PORT}")
         client.connect(BROKER, PORT, 60)
         client.loop_forever()
         
