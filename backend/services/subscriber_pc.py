@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import base64
 import json
 import os
+import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -24,15 +25,8 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"Connection failed, code: {rc}")
 
-def on_message(client, userdata, msg):
+def save_image_data(img_bytes, sequence, timestamp):
     try:
-        data = json.loads(msg.payload.decode("utf-8"))
-        b64_image = data["image_b64"]
-        sequence = data.get("seq", "unknown")
-        timestamp = data.get("timestamp", datetime.now().isoformat())
-        
-        img_bytes = base64.b64decode(b64_image)
-        
         current_time = datetime.now()
         filename = f"frame_{sequence}_{current_time.strftime('%Y%m%d_%H%M%S')}.jpg"
         filepath = os.path.join(STORAGE_DIR, filename)
@@ -42,7 +36,7 @@ def on_message(client, userdata, msg):
         with open(filepath, "wb") as f:
             f.write(img_bytes)
         
-        print(f"Saved: {filename} ({len(img_bytes):,} bytes) at {absolute_filepath}")
+        print(f"Saved: {filename} ({len(img_bytes):,} bytes)")
         
         queue_entry = {
             "filename": filename,
@@ -52,11 +46,29 @@ def on_message(client, userdata, msg):
             "size": len(img_bytes),
             "received_at": current_time.isoformat()
         }
-        
-        with open(TRIGGER_FILE, "a") as f:
+
+        with open(TRIGGER_FILE, "a+") as f:
             f.write(json.dumps(queue_entry) + "\n")
         
         print(f"Added to processing queue: {filename}")
+    except Exception as e:
+        print(f"Error in saving thread: {e}")
+
+
+def on_message(client, userdata, msg):
+    try:
+        data = json.loads(msg.payload.decode("utf-8"))
+        b64_image = data["image_b64"]
+        sequence = data.get("seq", "unknown")
+        timestamp = data.get("timestamp", datetime.now().isoformat())
+        
+        img_bytes = base64.b64decode(b64_image)
+
+        save_thread = threading.Thread(
+            target=save_image_data, 
+            args=(img_bytes, sequence, timestamp)
+        )
+        save_thread.start()
         
     except json.JSONDecodeError:
         print("Invalid JSON in MQTT message")
@@ -65,7 +77,7 @@ def on_message(client, userdata, msg):
 
 def on_disconnect(client, userdata, rc):
     if rc != 0:
-        print("Unexpected disconnection")
+        print("Unexpected disconnection. Reconnecting...")
 
 def main():
     print("Starting MQTT Image Subscriber")

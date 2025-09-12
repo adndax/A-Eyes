@@ -1,44 +1,88 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Pressable, ScrollView } from 'react-native';
-import { Text, View } from '@/components/Themed';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { initSpatialAudio, playObstacleAlert } from '../lib/spatialAudio';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, Pressable, ScrollView } from "react-native";
+import { Text, View } from "@/components/Themed";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  initSpatialAudio,
+  playObstacleAlert,
+  stopObstacleAlert,
+} from "../lib/spatialAudio";
+
+const API_URL = "http://192.168.1.8:3000/api/latest-analysis";
+
+type Obstacle = {
+  name: string;
+  confidence: number;
+  position: {
+    angle: number;
+    distance: string; // "1", "2", or "3"
+    relative_size: string;
+  };
+};
+
+type AnalysisResult = {
+  metadata: {
+    filename: string;
+    timestamp: string;
+  };
+  analysis: {
+    objects: Obstacle[];
+    total_objects: number;
+  };
+};
 
 function formatMMSS(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
-  const mm = String(m).padStart(2, '0');
-  const ss = String(s).padStart(2, '0');
+  const mm = String(m).padStart(2, "0");
+  const ss = String(s).padStart(2, "0");
   return `${mm}:${ss}`;
 }
 
-// Dummy obstacle detection function - replace with actual camera/AI detection
-function detectObstacles(): { angle: number; distance: number } | null {
-  // Simulate random obstacle detection for demo
-  const hasObstacle = Math.random() < 0.3; // 30% chance of obstacle
-  
-  if (!hasObstacle) return null;
-  
-  return {
-    angle: (Math.random() - 0.5) * 180, // -90 to 90 degrees
-    distance: Math.floor(Math.random() * 3) + 1 // 1=near, 2=mid, 3=far
-  };
+async function fetchLatestAnalysis(): Promise<AnalysisResult | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const response = await fetch(API_URL, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      if (response.status !== 404) {
+        console.error(`API Error fetching analysis: ${response.status}`);
+      }
+      return null;
+    }
+    const data: AnalysisResult = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error && error.name !== "AbortError") {
+      console.error("Failed to fetch analysis:", error.message);
+    }
+    return null;
+  }
 }
 
 export default function SesiOlahraga() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ mode?: string; rute?: string }>();
 
-  const mode = params.mode ?? 'Jalan Cepat';
-  const rute = params.rute ?? 'Rute Taman';
+  const mode = params.mode ?? "Jalan Cepat";
+  const rute = params.rute ?? "Rute Taman";
   const router = useRouter();
 
   const [seconds, setSeconds] = useState(0);
   const [paused, setPaused] = useState(false);
   const [guidanceEnabled, setGuidanceEnabled] = useState(true);
   const [lastObstacleTime, setLastObstacleTime] = useState(0);
+  const [lastAnalysisTimestamp, setLastAnalysisTimestamp] = useState<
+    string | null
+  >(null);
 
   const distanceRef = useRef(0);
   const [distance, setDistance] = useState(0);
@@ -46,6 +90,9 @@ export default function SesiOlahraga() {
 
   useEffect(() => {
     initSpatialAudio().catch(console.error);
+    return () => {
+      stopObstacleAlert();
+    };
   }, []);
 
   useEffect(() => {
@@ -59,61 +106,95 @@ export default function SesiOlahraga() {
     return () => clearInterval(id);
   }, [paused]);
 
-  // Obstacle detection loop
   useEffect(() => {
-    if (!guidanceEnabled || paused) return;
+    if (!guidanceEnabled || paused) {
+      stopObstacleAlert();
+      return;
+    }
 
     const obstacleCheckInterval = setInterval(async () => {
       const currentTime = Date.now();
-      
-      // Prevent overlapping alerts (minimum 3 seconds between alerts)
       if (currentTime - lastObstacleTime < 3000 || isPlayingAlert.current) {
         return;
       }
 
-      const obstacle = detectObstacles();
-      
-      if (obstacle) {
-        console.log(`Obstacle detected: ${obstacle.angle}° at distance level ${obstacle.distance}`);
-        
-        isPlayingAlert.current = true;
-        setLastObstacleTime(currentTime);
-        
-        try {
-          // Play spatial audio alert
-          await playObstacleAlert(obstacle.angle, obstacle.distance, 2000);
-        } catch (error) {
-          console.error('Error playing obstacle alert:', error);
-        } finally {
-          isPlayingAlert.current = false;
-        }
+      const result = await fetchLatestAnalysis();
+
+      if (!result || result.metadata.timestamp === lastAnalysisTimestamp) {
+        return;
       }
-    }, 1500); // Check every 1.5 seconds
+
+      setLastAnalysisTimestamp(result.metadata.timestamp);
+
+      const obstacles = result.analysis?.objects;
+      if (!obstacles || obstacles.length === 0) {
+        return;
+      }
+
+      const closestObstacle = obstacles.reduce((prev, curr) =>
+        parseInt(curr.position.distance) < parseInt(prev.position.distance)
+          ? curr
+          : prev
+      );
+
+      const { angle, distance: distanceStr } = closestObstacle.position;
+      const distanceLevel = parseInt(distanceStr);
+
+      console.log(
+        `Obstacle '${closestObstacle.name}' detected: ${angle.toFixed(
+          0
+        )}° at distance level ${distanceLevel}`
+      );
+
+      isPlayingAlert.current = true;
+      setLastObstacleTime(currentTime);
+
+      try {
+        playObstacleAlert(angle, distanceLevel, 2000);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error playing obstacle alert:", error.message);
+        } else {
+          console.error(
+            "An unknown error occurred while playing obstacle alert"
+          );
+        }
+      } finally {
+        setTimeout(() => {
+          isPlayingAlert.current = false;
+        }, 2000);
+      }
+    }, 1500);
 
     return () => clearInterval(obstacleCheckInterval);
-  }, [guidanceEnabled, paused, lastObstacleTime]);
+  }, [guidanceEnabled, paused, lastObstacleTime, lastAnalysisTimestamp]);
 
   const durMMSS = formatMMSS(seconds);
-  const distanceKm = useMemo(() => (distance / 1000).toFixed(1).replace('.', ','), [distance]);
+  const distanceKm = useMemo(
+    () => (distance / 1000).toFixed(1).replace(".", ","),
+    [distance]
+  );
 
   const onTogglePause = () => setPaused((p) => !p);
-  
+
   const onToggleGuidance = () => {
-    setGuidanceEnabled((prev) => !prev);
-    if (isPlayingAlert.current) {
-      // Stop any current alert when guidance is disabled
-      isPlayingAlert.current = false;
-    }
+    setGuidanceEnabled((prev) => {
+      if (prev) {
+        stopObstacleAlert();
+      }
+      return !prev;
+    });
   };
 
   const onFinish = () => {
+    stopObstacleAlert();
     router.replace({
-      pathname: '/olahragaSelesai',
+      pathname: "/olahragaSelesai",
       params: {
         durasi: durMMSS,
         jarakKm: distanceKm,
-        status: paused ? 'aktif & jeda' : 'aktif & stabil',
-        panduan: guidanceEnabled ? 'ON' : 'OFF',
+        status: paused ? "aktif & jeda" : "aktif & stabil",
+        panduan: guidanceEnabled ? "ON" : "OFF",
         mode,
         rute,
       },
@@ -121,16 +202,21 @@ export default function SesiOlahraga() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <ScrollView
         style={{ paddingHorizontal: 20 }}
-        contentContainerStyle={{ paddingTop: insets.top + 170, paddingBottom: 28 }}
+        contentContainerStyle={{
+          paddingTop: insets.top + 170,
+          paddingBottom: 28,
+        }}
         contentInsetAdjustmentBehavior="automatic"
       >
         <View style={styles.card}>
           <Text style={styles.title}>Sedang Berolahraga</Text>
           <Text style={styles.timer}>{durMMSS}</Text>
-          <Text style={styles.subline}>{mode} - {rute}</Text>
+          <Text style={styles.subline}>
+            {mode} - {rute}
+          </Text>
 
           <View style={styles.statusRow}>
             <View style={styles.statusCol}>
@@ -141,29 +227,45 @@ export default function SesiOlahraga() {
             </View>
 
             <Pressable style={styles.statusCol} onPress={onToggleGuidance}>
-              <Ionicons 
-                name={guidanceEnabled ? "navigate" : "navigate-outline"} 
-                size={22} 
-                color={guidanceEnabled ? "#48814C" : "#2E3942"} 
+              <Ionicons
+                name={guidanceEnabled ? "navigate" : "navigate-outline"}
+                size={22}
+                color={guidanceEnabled ? "#48814C" : "#2E3942"}
               />
               <Text style={styles.statusLabel}>
-                Panduan: <Text style={guidanceEnabled ? styles.statusOk : styles.statusOff}>
-                  {guidanceEnabled ? 'ON' : 'OFF'}
+                Panduan:{" "}
+                <Text
+                  style={guidanceEnabled ? styles.statusOk : styles.statusOff}
+                >
+                  {guidanceEnabled ? "ON" : "OFF"}
                 </Text>
               </Text>
             </Pressable>
           </View>
 
-          <Pressable style={[styles.btn, styles.btnDark]} onPress={onTogglePause}>
+          <Pressable
+            style={[styles.btn, styles.btnDark]}
+            onPress={onTogglePause}
+          >
             <View style={styles.btnRow}>
-              <MaterialCommunityIcons name={paused ? 'play' : 'pause'} size={16} color="#FFFFFF" />
-              <Text style={styles.btnDarkText}>{paused ? 'Lanjut' : 'Jeda'}</Text>
+              <MaterialCommunityIcons
+                name={paused ? "play" : "pause"}
+                size={16}
+                color="#FFFFFF"
+              />
+              <Text style={styles.btnDarkText}>
+                {paused ? "Lanjut" : "Jeda"}
+              </Text>
             </View>
           </Pressable>
 
           <Pressable style={[styles.btn, styles.btnGreen]} onPress={onFinish}>
             <View style={styles.btnRow}>
-              <MaterialCommunityIcons name="check-circle-outline" size={16} color="#FFFFFF" />
+              <MaterialCommunityIcons
+                name="check-circle-outline"
+                size={16}
+                color="#FFFFFF"
+              />
               <Text style={styles.btnGreenText}>Selesai</Text>
             </View>
           </Pressable>
@@ -176,60 +278,80 @@ export default function SesiOlahraga() {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 15,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: '#DADADA',
+    borderColor: "#DADADA",
     paddingVertical: 24,
     paddingHorizontal: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.03,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
   },
   title: {
-    fontFamily: 'PoppinsSemiBold',
-    fontWeight: '600',
+    fontFamily: "PoppinsSemiBold",
+    fontWeight: "600",
     fontSize: 20,
-    color: '#272829',
-    textAlign: 'center',
+    color: "#272829",
+    textAlign: "center",
   },
   timer: {
     marginTop: 10,
-    fontFamily: 'PoppinsSemiBold',
-    fontWeight: '600',
+    fontFamily: "PoppinsSemiBold",
+    fontWeight: "600",
     fontSize: 32,
-    color: '#000000',
-    textAlign: 'center',
+    color: "#000000",
+    textAlign: "center",
   },
   subline: {
-    fontFamily: 'PoppinsMedium',
+    fontFamily: "PoppinsMedium",
     marginTop: 4,
     fontSize: 12,
-    color: '#535C60',
-    textAlign: 'center',
+    color: "#535C60",
+    textAlign: "center",
   },
   statusRow: {
     marginTop: 18,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  statusCol: { alignItems: 'center', flex: 1 },
-  statusLabel: { marginTop: 6, fontSize: 12, color: '#000000' },
-  statusOk: { fontFamily: 'PoppinsMedium', color: '#48814C', fontWeight: '500' },
-  statusOff: { fontFamily: 'PoppinsMedium', color: '#CC4125', fontWeight: '500' },
-
+  statusCol: { alignItems: "center", flex: 1 },
+  statusLabel: { marginTop: 6, fontSize: 12, color: "#000000" },
+  statusOk: {
+    fontFamily: "PoppinsMedium",
+    color: "#48814C",
+    fontWeight: "500",
+  },
+  statusOff: {
+    fontFamily: "PoppinsMedium",
+    color: "#CC4125",
+    fontWeight: "500",
+  },
   btn: {
     marginTop: 12,
     borderRadius: 12,
     paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  btnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: "transparent" },
-
-  btnDark: { backgroundColor: '#272829' },
-  btnDarkText: { fontFamily: 'PoppinsMedium', color: '#FFFFFF', fontSize: 16, fontWeight: '500'},
-
-  btnGreen: { backgroundColor: '#48814C' },
-  btnGreenText: { fontFamily: 'PoppinsMedium', color: '#FFFFFF', fontSize: 16, fontWeight: '500'},
+  btnRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "transparent",
+  },
+  btnDark: { backgroundColor: "#272829" },
+  btnDarkText: {
+    fontFamily: "PoppinsMedium",
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  btnGreen: { backgroundColor: "#48814C" },
+  btnGreenText: {
+    fontFamily: "PoppinsMedium",
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "500",
+  },
 });

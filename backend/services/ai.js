@@ -1,6 +1,8 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const logger = require("./logger");
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 class AIService {
   constructor() {
     this.genAI = null;
@@ -10,6 +12,8 @@ class AIService {
       apiKey: process.env.GEMINI_API_KEY,
       modelName: process.env.GEMINI_MODEL || "gemini-1.5-flash",
       timeout: parseInt(process.env.PROCESSING_TIMEOUT) || 30000,
+      maxRetries: 3,
+      initialDelay: 1000,
     };
   }
 
@@ -41,7 +45,6 @@ class AIService {
     }
 
     const base64Image = imageBuffer.toString("base64");
-
     const prompt = `
 Analyze this image for object detection. Return a JSON response with this exact structure:
 {
@@ -83,29 +86,44 @@ Provide accurate position estimates based on object placement in the frame.`;
       },
     };
 
-    try {
-      const startTime = Date.now();
+    for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
+      try {
+        const startTime = Date.now();
+        const result = await Promise.race([
+          this.model.generateContent([prompt, imagePart]),
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Analysis timeout")),
+              this.config.timeout
+            )
+          ),
+        ]);
 
-      const result = await Promise.race([
-        this.model.generateContent([prompt, imagePart]),
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Analysis timeout")),
-            this.config.timeout
-          )
-        ),
-      ]);
+        const response = await result.response;
+        const text = response.text();
+        const processingTime = Date.now() - startTime;
+        logger.debug("Gemini analysis completed", { processingTime });
 
-      const response = await result.response;
-      const text = response.text();
+        return this.parseAnalysisResult(text);
+      } catch (error) {
+        const isOverloaded = error.message && error.message.includes("503");
 
-      const processingTime = Date.now() - startTime;
-      logger.debug("Gemini analysis completed", { processingTime });
-
-      return this.parseAnalysisResult(text);
-    } catch (error) {
-      logger.error("Gemini analysis failed", error);
-      throw new Error(`AI analysis failed: ${error.message}`);
+        if (isOverloaded && attempt < this.config.maxRetries) {
+          const delay = this.config.initialDelay * Math.pow(2, attempt - 1);
+          logger.warn(
+            `Model overloaded. Retrying in ${
+              delay / 1000
+            }s... (Attempt ${attempt}/${this.config.maxRetries})`
+          );
+          await sleep(delay);
+        } else {
+          logger.error(
+            `Gemini analysis failed after ${attempt} attempts`,
+            error
+          );
+          throw new Error(`AI analysis failed: ${error.message}`);
+        }
+      }
     }
   }
 
@@ -146,8 +164,8 @@ Provide accurate position estimates based on object placement in the frame.`;
   }
 
   validateDistance(distance) {
-    const distanceNum = parseInt(distance);
-    return distanceNum >= 1 && distanceNum <= 3 ? distanceNum : 2;
+    const distanceNum = parseInt(distance, 10);
+    return distanceNum >= 1 && distanceNum <= 3 ? String(distanceNum) : "2";
   }
 
   validateSize(size) {
