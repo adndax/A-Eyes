@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as Speech from 'expo-speech';
 import { 
   View, 
   Text, 
@@ -27,14 +28,14 @@ interface Statistics {
 
 export default function RiwayatStatistikPage() {
   const [activeTab, setActiveTab] = useState<'olahraga' | 'latihan'>('olahraga');
-  
-  // Sample statistics data
+  const [speakingWorkoutId, setSpeakingWorkoutId] = useState<string | null>(null);
+  const [speakingSummary, setSpeakingSummary] = useState(false);
+
   const [statistics] = useState<Statistics>({
     totalWorkouts: 2,
     accuracyRate: '80%'
   });
 
-  // Sample workout history data
   const [workoutHistory] = useState<WorkoutHistory[]>([
     {
       id: '1',
@@ -65,12 +66,147 @@ export default function RiwayatStatistikPage() {
     },
   ]);
 
-  const handlePlaySummary = () => {
-    Alert.alert('Ringkasan Audio', 'Memutar ringkasan aktivitas olahraga Anda...');
+  const getIndonesianVoice = async () => {
+    try {
+      const voices = await Speech.getAvailableVoicesAsync();
+      console.log('Available voices:', voices.map(v => `${v.name} (${v.language})`));
+      
+      const indonesianVoice = voices.find(voice => 
+        voice.language === 'id-ID' || 
+        voice.language === 'id' || 
+        voice.name.toLowerCase().includes('indonesian') ||
+        voice.name.toLowerCase().includes('indonesia')
+      );
+      
+      return indonesianVoice?.identifier || null;
+    } catch (error) {
+      console.log('Error getting voices:', error);
+      return null;
+    }
   };
 
-  const handlePlayWorkoutAudio = (workoutType: string) => {
-    Alert.alert('Audio Workout', `Memutar audio untuk ${workoutType}`);
+  const handlePlayWorkoutAudio = async (workout: WorkoutHistory) => {
+    if (speakingWorkoutId) {
+      Speech.stop();
+      if (speakingWorkoutId === workout.id) {
+        setSpeakingWorkoutId(null);
+        return;
+      }
+    }
+
+    setSpeakingWorkoutId(workout.id);
+
+    const statusText = workout.status === 'berhasil' ? 'berhasil' : 'perlu perbaikan';
+    const speechText = `
+      Aktivitas ${workout.type}, status ${statusText}. 
+      Tanggal ${workout.date}. 
+      Durasi ${workout.duration}, jarak ${workout.distance}. 
+      ${workout.route}.
+    `.trim();
+
+    try {
+      const indonesianVoiceId = await getIndonesianVoice();
+    
+      const speechOptions: any = {
+        pitch: 1.0,
+        rate: 0.9,
+        onDone: () => setSpeakingWorkoutId(null),
+        onStopped: () => setSpeakingWorkoutId(null),
+        onError: () => setSpeakingWorkoutId(null),
+      };
+
+      // Use Indonesian voice if available
+      if (indonesianVoiceId) {
+        speechOptions.voice = indonesianVoiceId;
+        console.log('Using Indonesian voice:', indonesianVoiceId);
+      } else {
+        // Fallback to language code
+        speechOptions.language = 'id-ID';
+        console.log('Using language fallback: id-ID');
+      }
+
+      await Speech.speak(speechText, speechOptions);
+    } catch (error) {
+      console.error('Speech error:', error);
+      setSpeakingWorkoutId(null);
+    }
+  };
+
+  const handlePlaySummary = async () => {
+    // Stop any current speech
+    if (speakingSummary) {
+      Speech.stop();
+      setSpeakingSummary(false);
+      return;
+    }
+
+    // Stop individual workout speech if playing
+    if (speakingWorkoutId) {
+      Speech.stop();
+      setSpeakingWorkoutId(null);
+    }
+
+    setSpeakingSummary(true);
+
+    try {
+      const totalActivities = workoutHistory.length;
+      const successfulActivities = workoutHistory.filter(w => w.status === 'berhasil').length;
+      const failedActivities = totalActivities - successfulActivities;
+      const successRate = totalActivities > 0 ? Math.round((successfulActivities / totalActivities) * 100) : 0;
+
+      const summaryParts = [
+        "Ringkasan aktivitas olahraga Anda.",
+        
+        totalActivities > 0 
+          ? `Total ${totalActivities} aktivitas telah dilakukan.`
+          : "Belum ada aktivitas yang tercatat.",
+        
+        successfulActivities > 0 
+          ? `${successfulActivities} aktivitas berhasil diselesaikan.`
+          : "",
+        
+        failedActivities > 0 
+          ? `${failedActivities} aktivitas memerlukan perbaikan.`
+          : "",
+        
+        totalActivities > 0 
+          ? `Tingkat keberhasilan Anda adalah ${successRate} persen.`
+          : "",
+
+        successRate >= 80 
+          ? "Kinerja Anda sangat baik! Pertahankan konsistensi ini."
+          : successRate >= 60
+          ? "Kinerja Anda cukup baik. Terus tingkatkan untuk hasil yang lebih optimal."
+          : totalActivities > 0
+          ? "Mari tingkatkan kinerja Anda pada aktivitas selanjutnya."
+          : "Mulai aktivitas olahraga pertama Anda untuk membangun kebiasaan sehat."
+      ];
+
+      const speechText = summaryParts.filter(part => part.trim() !== "").join(" ");
+
+      const indonesianVoiceId = await getIndonesianVoice();
+      
+      const speechOptions: any = {
+        pitch: 1.0,
+        rate: 0.9,
+        onDone: () => setSpeakingSummary(false),
+        onStopped: () => setSpeakingSummary(false),
+        onError: () => setSpeakingSummary(false),
+      };
+
+      if (indonesianVoiceId) {
+        speechOptions.voice = indonesianVoiceId;
+      } else {
+        speechOptions.language = 'id-ID';
+      }
+
+      await Speech.speak(speechText, speechOptions);
+
+    } catch (error) {
+      console.error('Summary speech error:', error);
+      setSpeakingSummary(false);
+      Alert.alert('Error', 'Gagal memutar ringkasan audio');
+    }
   };
 
   const renderStatisticsCard = () => (
@@ -155,11 +291,17 @@ export default function RiwayatStatistikPage() {
         </View>
         
         <Pressable 
-          style={styles.audioButton}
-          onPress={() => handlePlayWorkoutAudio(workout.type)}
+          style={[
+            styles.audioButton,
+            speakingWorkoutId === workout.id && styles.audioButtonActive
+          ]}
+          onPress={() => handlePlayWorkoutAudio(workout)}
           android_ripple={{ color: '#E5E7EB' }}
         >
-          <Volume2 size={20} color="#6B7280" />
+          <Volume2 
+            size={20} 
+            color={speakingWorkoutId === workout.id ? '#48814C' : '#6B7280'} 
+          />
         </Pressable>
       </View>
       
@@ -231,7 +373,6 @@ export default function RiwayatStatistikPage() {
 }
 
 const styles = StyleSheet.create({
-  // Container Styles
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -431,5 +572,18 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     marginTop: 12,
     textAlign: 'center',
+  },
+
+  audioButtonActive: {
+    backgroundColor: '#F0F9F0', // Light green background when active
+    borderWidth: 1,
+    borderColor: '#48814C',
+  },
+  summaryButtonActive: {
+    backgroundColor: '#F0F9F0',
+    borderColor: '#48814C',
+  },
+  summaryButtonTextActive: {
+    color: '#48814C',
   },
 });
