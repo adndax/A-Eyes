@@ -23,7 +23,7 @@ interface WorkoutHistory {
 
 interface Statistics {
   totalWorkouts: number;
-  accuracyRate: string;
+  totalDistance: string;
 }
 
 export default function RiwayatStatistikPage() {
@@ -33,7 +33,7 @@ export default function RiwayatStatistikPage() {
 
   const [statistics] = useState<Statistics>({
     totalWorkouts: 2,
-    accuracyRate: '80%'
+    totalDistance: '3,5 km'
   });
 
   const [workoutHistory] = useState<WorkoutHistory[]>([
@@ -223,8 +223,8 @@ export default function RiwayatStatistikPage() {
         </View>
         
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{statistics.accuracyRate}</Text>
-          <Text style={styles.statLabel}>Rata-rata Akurasi</Text>
+          <Text style={styles.statNumber}>{statistics.totalDistance}</Text>
+          <Text style={styles.statLabel}>Total Jarak Tempuh</Text>
         </View>
       </View>
       
