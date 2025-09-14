@@ -86,7 +86,6 @@ application/
 
 ## Requirements
 
-
 To run this project locally, ensure you have installed:  
 - Node.js (v18 or later)  
 - npm or yarn  
@@ -124,6 +123,10 @@ Alternative (root)
     npm run dev
    ```
 The app will run on **http://localhost:8081** or you can open it on your mobile device using **Expo Go** by scanning the provided QR code.  
+
+##  Deployment
+You can access the deployed version of this project here:  
+ [https://a-eyes.nba-dev.my.id/connect](https://a-eyes.nba-dev.my.id/connect)
 
 ## Authors
 <table>
