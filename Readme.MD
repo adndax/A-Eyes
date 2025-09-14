@@ -56,10 +56,9 @@ application/
 │ └── results/          # Processed results
 │
 ├── utils/              # Utilities
-│ ├── image_processor.js # Image processing script
-│ ├── index.js          # Node.js backend entry
-│ └── .env              # Environment variables
-│
+├── image_processor.js # Image processing script
+├── index.js          # Node.js backend entry
+├── .env              # Environment variables
 └── README.md           # Main Project Documentation
 ```
 
