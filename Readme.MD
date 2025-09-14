@@ -24,3 +24,13 @@ Pada tahap ini, tim telah berhasil membangun **frontend aplikasi A-Eyes** dengan
 ---
 
 *Dokumentasi ini diperbarui pada Progress 1 untuk mencatat pencapaian awal pengembangan frontend A-Eyes.*
+
+## Cara Menjalankan
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/adndax/A-Eyes
+    ```
+2.  **Jalankan aplikasi**
+    ```bash
+    npm run dev
+    ```
