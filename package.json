@@ -2,7 +2,7 @@
   "name": "a-eyes-monorepo",
   "version": "1.0.0",
   "scripts": {
-    "start:backend:python": "cd backend && python services/subscriber_pi.py",
+    "start:backend:python": "cd backend && python services/subscriber_pc.py",
     "start:backend:node": "cd backend && node image_processor.js",
     "start:frontend": "cd application && npx expo start",
     "dev": "concurrently \"npm:start:backend:python\" \"npm:start:backend:node\" \"npm:start:frontend\""
