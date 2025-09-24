@@ -5,7 +5,7 @@
     "start:backend:python": "cd backend && python services/subscriber_pc.py",
     "start:backend:node": "cd backend && node image_processor.js",
     "start:frontend": "cd application && npx expo start",
-    "dev": "concurrently \"npm:start:backend:python\" \"npm:start:backend:node\" \"npm:start:frontend\""
+    "dev": "concurrently --kill-others-on-fail --interactive \"npm:start:frontend\" \"npm:start:backend:python\" \"npm:start:backend:node\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
