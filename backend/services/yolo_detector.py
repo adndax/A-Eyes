@@ -4,6 +4,7 @@ from ultralytics import YOLO
 from PIL import Image
 
 def estimate_position(box, img_width, img_height):
+    # Di sini box sudah berupa list angka, jadi tidak ada masalah
     x_center = box[0] + box[2] / 2
     angle = ((x_center / img_width) - 0.5) * 180
     
@@ -45,12 +46,14 @@ def detect_objects(image_path):
         for result in results:
             boxes = result.boxes
             for box in boxes:
-                xywhn = box.xywhn[0]
+                # box.xywhn[0] adalah Tensor, kita ubah ke list Python biasa
+                xywhn_list = box.xywhn[0].tolist() 
                 
-                x_percent = float(xywhn[0] - xywhn[2] / 2) * 100
-                y_percent = float(xywhn[1] - xywhn[3] / 2) * 100
-                width_percent = float(xywhn[2]) * 100
-                height_percent = float(xywhn[3]) * 100
+                # Gunakan xywhn_list yang sudah berupa angka biasa
+                x_percent = (xywhn_list[0] - xywhn_list[2] / 2) * 100
+                y_percent = (xywhn_list[1] - xywhn_list[3] / 2) * 100
+                width_percent = xywhn_list[2] * 100
+                height_percent = xywhn_list[3] * 100
 
                 bbox_percent = {
                     "x": round(x_percent, 2),
@@ -62,7 +65,7 @@ def detect_objects(image_path):
                 obj = {
                     "name": result.names[int(box.cls)],
                     "confidence": round(float(box.conf), 2),
-                    "position": estimate_position(xywhn, img_width, img_height),
+                    "position": estimate_position(xywhn_list, img_width, img_height),
                     "bbox": bbox_percent
                 }
                 detected_objects.append(obj)
