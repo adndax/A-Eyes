@@ -13,7 +13,7 @@ import {
   stopObstacleAlert,
 } from "../lib/spatialAudio";
 
-const API_URL = "http://192.168.1.9:3000/api/latest-analysis";
+const API_URL = "http://192.168.1.15:3000/api/latest-analysis";
 
 type Obstacle = {
   name: string;

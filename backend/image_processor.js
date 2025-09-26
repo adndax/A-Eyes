@@ -19,10 +19,8 @@ class ImageProcessor {
   async initialize() {
     this.aiService = new AIService();
     await this.ensureDirectories();
-
     console.log("Image Processor initialized");
     console.log(`Results directory: ${this.resultDir}`);
-
     this.startMonitoring();
     this.startApiServer();
   }
@@ -46,21 +44,37 @@ class ImageProcessor {
     const app = express();
     const port = process.env.API_PORT || 3000;
     app.use(cors());
+
     app.get("/api/latest-analysis", async (req, res) => {
       try {
         const files = await fs.readdir(this.resultDir);
         const jsonFiles = files.filter((f) => f.endsWith("_analysis.json"));
+
         if (jsonFiles.length === 0) {
           return res.status(404).json({ message: "No analysis files found." });
         }
-        let latestFile = jsonFiles.reduce((latest, file) => {
-          return fs.statSync(path.join(this.resultDir, file)).mtime >
-            fs.statSync(path.join(this.resultDir, latest)).mtime
-            ? file
-            : latest;
-        });
+
+        let latestFile = null;
+        let latestTime = 0;
+
+        for (const file of jsonFiles) {
+          const filePath = path.join(this.resultDir, file);
+          const stats = await fs.stat(filePath);
+          if (stats.mtimeMs > latestTime) {
+            latestTime = stats.mtimeMs;
+            latestFile = file;
+          }
+        }
+
+        if (!latestFile) {
+          return res
+            .status(404)
+            .json({ message: "Could not determine the latest file." });
+        }
+
         const latestFilePath = path.join(this.resultDir, latestFile);
         const fileContent = await fs.readFile(latestFilePath, "utf8");
+
         res.setHeader("Content-Type", "application/json");
         res.send(fileContent);
       } catch (error) {
@@ -68,6 +82,7 @@ class ImageProcessor {
         res.status(500).json({ error: "Failed to retrieve latest analysis." });
       }
     });
+
     app.listen(port, () => {
       console.log(`API server listening on http://0.0.0.0:${port}`);
     });
@@ -114,19 +129,13 @@ class ImageProcessor {
     try {
       console.log(`\nProcessing: ${filename}`);
       console.log("=".repeat(60));
-
       await fs.access(filepath);
-
       const startTime = Date.now();
-      // === PERUBAHAN UTAMA DI SINI ===
-      // Kirim 'filepath' langsung, bukan buffer gambar
       const result = await this.aiService.analyzeImage(filepath);
       const processingTime = Date.now() - startTime;
-
       if (!result) {
         throw new Error("AI analysis returned no result.");
       }
-
       const analysisResult = {
         metadata: {
           filename,
@@ -137,16 +146,12 @@ class ImageProcessor {
         },
         analysis: result,
       };
-
       console.log(`Processing time: ${processingTime}ms`);
-
       const baseName = path.parse(filename).name;
       const resultFilename = `${baseName}_analysis.json`;
       const resultPath = path.join(this.resultDir, resultFilename);
-
       await fs.writeFile(resultPath, JSON.stringify(analysisResult, null, 2));
       console.log(`Analysis saved: ${resultFilename}`);
-
       const logEntry = {
         timestamp: new Date().toISOString(),
         filename,
@@ -155,7 +160,6 @@ class ImageProcessor {
         processing_time: processingTime,
         result_file: resultFilename,
       };
-
       await fs.appendFile(this.processedFile, JSON.stringify(logEntry) + "\n");
     } catch (error) {
       console.error(`Error processing ${filename}:`, error.message);

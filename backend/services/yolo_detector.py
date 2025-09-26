@@ -4,7 +4,6 @@ from ultralytics import YOLO
 from PIL import Image
 
 def estimate_position(box, img_width, img_height):
-    # Di sini box sudah berupa list angka, jadi tidak ada masalah
     x_center = box[0] + box[2] / 2
     angle = ((x_center / img_width) - 0.5) * 180
     
@@ -31,11 +30,13 @@ def estimate_position(box, img_width, img_height):
 def detect_objects(image_path):
     try:
         img = Image.open(image_path)
+
+        target_width = 320 
         
-        target_width = 416
         w_percent = (target_width / float(img.size[0]))
         h_size = int((float(img.size[1]) * float(w_percent)))
-        img = img.resize((target_width, h_size), Image.Resampling.LANCZOS)
+
+        img = img.resize((target_width, h_size), Image.Resampling.BILINEAR)
         
         model = YOLO('yolov10n.pt')
         results = model(img, verbose=False) 
@@ -46,10 +47,11 @@ def detect_objects(image_path):
         for result in results:
             boxes = result.boxes
             for box in boxes:
-                # box.xywhn[0] adalah Tensor, kita ubah ke list Python biasa
+                if float(box.conf) < 0.4:
+                    continue
+
                 xywhn_list = box.xywhn[0].tolist() 
                 
-                # Gunakan xywhn_list yang sudah berupa angka biasa
                 x_percent = (xywhn_list[0] - xywhn_list[2] / 2) * 100
                 y_percent = (xywhn_list[1] - xywhn_list[3] / 2) * 100
                 width_percent = xywhn_list[2] * 100
