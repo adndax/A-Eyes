@@ -13,7 +13,7 @@ import {
   stopAlert,
 } from "../lib/spatialAudio";
 
-const API_URL = "http://192.168.1.9:3000/api/latest-analysis";
+const API_URL = "http://192.168.1.15:3000/api/latest-analysis";
 
 const isSpeak: 0 | 1 = 1; // 0 = beep only, 1 = speak obstacle
 // TODO: change to not constant, but user-selectable in settings
