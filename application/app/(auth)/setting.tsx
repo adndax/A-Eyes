@@ -3,12 +3,12 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Slider from "@react-native-community/slider";
 import { View } from '@/components/Themed';
 import { useRouter } from "expo-router";
-import { Headphones } from "lucide-react-native";
 
 export default function Setting() {
   const router = useRouter();
   const [speed, setSpeed] = useState(0.8); 
   const [intensity, setIntensity] = useState(0.6); 
+  const [audioMode, setAudioMode] = useState("command"); 
   const [voice, setVoice] = useState("female");
 
   const getSpeedLabel = (val: number) => {
@@ -32,57 +32,103 @@ export default function Setting() {
           Atur preferensi suara yang Anda inginkan
         </Text>
 
-        {/* Kecepatan Bicara */}
-        <Text style={styles.label}>Kecepatan Bicara</Text>
-        <Slider
-          style={{ width: "100%", height: 40 }}
-          minimumValue={0}
-          maximumValue={1}
-          value={speed}
-          minimumTrackTintColor="#272829"
-          maximumTrackTintColor="#E5E5E5"
-          thumbTintColor="#272829"
-          onValueChange={setSpeed}
-        />
-        <Text style={styles.infoText}>
-          {Math.round(speed * 100)}% - {getSpeedLabel(speed)}
-        </Text>
-
-        {/* Pilih suara */}
-        <View style={styles.voiceRow}>
+        {/* Mode Audio */}
+        <Text style={styles.label}>Mode Audio</Text>
+        <View style={styles.audioModeRow}>
           <TouchableOpacity
             style={[
-              styles.voiceButton,
-              voice === "female" && styles.voiceButtonActive,
+              styles.audioModeButton,
+              audioMode === "command" && styles.audioModeButtonActive,
             ]}
-            onPress={() => setVoice("female")}
+            onPress={() => setAudioMode("command")}
           >
             <Text
               style={[
-                styles.voiceText,
-                voice === "female" && styles.voiceTextActive,
+                styles.audioModeText,
+                audioMode === "command" && styles.audioModeTextActive,
               ]}
             >
-              Suara Perempuan
+              Suara Perintah
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
-              styles.voiceButton,
-              voice === "male" && styles.voiceButtonActive,
+              styles.audioModeButton,
+              audioMode === "spatial" && styles.audioModeButtonActive,
             ]}
-            onPress={() => setVoice("male")}
+            onPress={() => setAudioMode("spatial")}
           >
             <Text
               style={[
-                styles.voiceText,
-                voice === "male" && styles.voiceTextActive,
+                styles.audioModeText,
+                audioMode === "spatial" && styles.audioModeTextActive,
               ]}
             >
-              Suara Laki-laki
+              Audio Spasial
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Pilih suara - hanya tampil jika mode "command" */}
+        {audioMode === "command" && (
+          <>
+            <Text style={styles.label}>Pilih Suara</Text>
+            <View style={styles.voiceRow}>
+              <TouchableOpacity
+                style={[
+                  styles.voiceButton,
+                  voice === "female" && styles.voiceButtonActive,
+                ]}
+                onPress={() => setVoice("female")}
+              >
+                <Text
+                  style={[
+                    styles.voiceText,
+                    voice === "female" && styles.voiceTextActive,
+                  ]}
+                >
+                  Suara Perempuan
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.voiceButton,
+                  voice === "male" && styles.voiceButtonActive,
+                ]}
+                onPress={() => setVoice("male")}
+              >
+                <Text
+                  style={[
+                    styles.voiceText,
+                    voice === "male" && styles.voiceTextActive,
+                  ]}
+                >
+                  Suara Laki-laki
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {/* Kecepatan Bicara - hanya tampil jika mode "command" */}
+        {audioMode === "command" && (
+          <>
+            <Text style={styles.label}>Kecepatan Bicara</Text>
+            <Slider
+              style={{ width: "100%", height: 40 }}
+              minimumValue={0}
+              maximumValue={1}
+              value={speed}
+              minimumTrackTintColor="#272829"
+              maximumTrackTintColor="#E5E5E5"
+              thumbTintColor="#272829"
+              onValueChange={setSpeed}
+            />
+            <Text style={styles.infoText}>
+              {Math.round(speed * 100)}% - {getSpeedLabel(speed)}
+            </Text>
+          </>
+        )}
 
         {/* Intensitas Getaran */}
         <Text style={styles.label}>Intensitas Getaran</Text>
@@ -99,10 +145,6 @@ export default function Setting() {
         <Text style={styles.infoText}>
           {Math.round(intensity * 100)}% - {getIntensityLabel(intensity)}
         </Text>
-
-        <View style={styles.iconContainer}>
-          <Headphones size={30} color="#272829" />
-        </View>
 
         {/* Tombol */}
         <TouchableOpacity
@@ -162,6 +204,32 @@ const styles = StyleSheet.create({
     color: "#707070",
     marginBottom: 10,
   },
+  audioModeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  audioModeButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: "#DADADA",
+    alignItems: "center",
+    marginHorizontal: 4,
+  },
+  audioModeButtonActive: {
+    backgroundColor: "#272829",
+    borderColor: "#272829",
+  },
+  audioModeText: {
+    fontSize: 12,
+    fontFamily: "PoppinsMedium",
+    color: "#272829",
+  },
+  audioModeTextActive: {
+    color: "#fff",
+  },
   voiceRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -187,17 +255,6 @@ const styles = StyleSheet.create({
   },
   voiceTextActive: {
     color: "#fff",
-  },
-  iconContainer: {
-    marginVertical: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "#DADADA",
-    borderRadius: 50,
-    width: 60,
-    height: 60,
-    alignSelf: "center",
   },
   button: {
     backgroundColor: "#272829",
