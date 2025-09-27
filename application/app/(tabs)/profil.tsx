@@ -53,6 +53,7 @@ export default function ProfilPengaturanPage() {
     securityReminders: true,
   });
 
+  const [audioMode, setAudioMode] = useState<'command' | 'spatial'>('command');
   const [speechGender, setSpeechGender] = useState<'female' | 'male'>('female');
 
   // Handler functions
@@ -224,48 +225,86 @@ export default function ProfilPengaturanPage() {
         getSensitivityLabel
       )}
 
-      {/* Speech Settings */}
-      <Text style={styles.subsectionTitle}>Pengaturan Suara</Text>
-      
-      {renderSlider(
-        'Kecepatan Bicara',
-        settings.speechSpeed,
-        (value) => handleSliderChange('speechSpeed', value),
-        getSpeedLabel
-      )}
-
-      {/* Voice Gender Selection */}
-      <View style={styles.voiceGenderContainer}>
+      {/* Audio Mode Selection */}
+      <Text style={styles.subsectionTitle}>Mode Audio</Text>
+      <View style={styles.audioModeContainer}>
         <Pressable 
           style={[
-            styles.voiceButton, 
-            speechGender === 'female' ? styles.voiceButtonActive : styles.voiceButtonInactive
+            styles.audioModeButton, 
+            audioMode === 'command' ? styles.audioModeButtonActive : styles.audioModeButtonInactive
           ]}
-          onPress={() => setSpeechGender('female')}
+          onPress={() => setAudioMode('command')}
         >
           <Text style={[
-            styles.voiceButtonText,
-            speechGender === 'female' ? styles.voiceButtonTextActive : styles.voiceButtonTextInactive
+            styles.audioModeButtonText,
+            audioMode === 'command' ? styles.audioModeButtonTextActive : styles.audioModeButtonTextInactive
           ]}>
-            Suara Perempuan
+            Suara Perintah
           </Text>
         </Pressable>
         
         <Pressable 
           style={[
-            styles.voiceButton, 
-            speechGender === 'male' ? styles.voiceButtonActive : styles.voiceButtonInactive
+            styles.audioModeButton, 
+            audioMode === 'spatial' ? styles.audioModeButtonActive : styles.audioModeButtonInactive
           ]}
-          onPress={() => setSpeechGender('male')}
+          onPress={() => setAudioMode('spatial')}
         >
           <Text style={[
-            styles.voiceButtonText,
-            speechGender === 'male' ? styles.voiceButtonTextActive : styles.voiceButtonTextInactive
+            styles.audioModeButtonText,
+            audioMode === 'spatial' ? styles.audioModeButtonTextActive : styles.audioModeButtonTextInactive
           ]}>
-            Suara Laki-laki
+            Audio Spasial
           </Text>
         </Pressable>
       </View>
+
+      {/* Speech Settings - hanya tampil jika mode "command" */}
+      {audioMode === 'command' && (
+        <>
+          <Text style={styles.subsectionTitle}>Pengaturan Suara</Text>
+          
+          {renderSlider(
+            'Kecepatan Bicara',
+            settings.speechSpeed,
+            (value) => handleSliderChange('speechSpeed', value),
+            getSpeedLabel
+          )}
+
+          {/* Voice Gender Selection */}
+          <View style={styles.voiceGenderContainer}>
+            <Pressable 
+              style={[
+                styles.voiceButton, 
+                speechGender === 'female' ? styles.voiceButtonActive : styles.voiceButtonInactive
+              ]}
+              onPress={() => setSpeechGender('female')}
+            >
+              <Text style={[
+                styles.voiceButtonText,
+                speechGender === 'female' ? styles.voiceButtonTextActive : styles.voiceButtonTextInactive
+              ]}>
+                Suara Perempuan
+              </Text>
+            </Pressable>
+            
+            <Pressable 
+              style={[
+                styles.voiceButton, 
+                speechGender === 'male' ? styles.voiceButtonActive : styles.voiceButtonInactive
+              ]}
+              onPress={() => setSpeechGender('male')}
+            >
+              <Text style={[
+                styles.voiceButtonText,
+                speechGender === 'male' ? styles.voiceButtonTextActive : styles.voiceButtonTextInactive
+              ]}>
+                Suara Laki-laki
+              </Text>
+            </Pressable>
+          </View>
+        </>
+      )}
 
       {/* Vibration Intensity */}
       {renderSlider(
@@ -508,6 +547,41 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginTop: 20,
     marginBottom: 14,
+  },
+
+  // Audio Mode Styles
+  audioModeContainer: {
+    flexDirection: 'row',
+    gap: 14,
+    marginBottom: 24,
+  },
+  audioModeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  audioModeButtonActive: {
+    backgroundColor: '#272829',
+  },
+  audioModeButtonInactive: {
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  audioModeButtonText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontFamily: 'PoppinsMedium',
+  },
+  audioModeButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  audioModeButtonTextInactive: {
+    color: '#6B7280',
   },
 
   // Slider Styles
