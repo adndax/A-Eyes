@@ -9,11 +9,14 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   initSpatialAudio,
-  playObstacleAlert,
-  stopObstacleAlert,
+  playAlert,
+  stopAlert,
 } from "../lib/spatialAudio";
 
 const API_URL = "http://192.168.1.9:3000/api/latest-analysis";
+
+const isSpeak: 0 | 1 = 1; // 0 = beep only, 1 = speak obstacle
+// TODO: change to not constant, but user-selectable in settings
 
 type Obstacle = {
   name: string;
@@ -80,9 +83,7 @@ export default function SesiOlahraga() {
   const [paused, setPaused] = useState(false);
   const [guidanceEnabled, setGuidanceEnabled] = useState(true);
   const [lastObstacleTime, setLastObstacleTime] = useState(0);
-  const [lastAnalysisTimestamp, setLastAnalysisTimestamp] = useState<
-    string | null
-  >(null);
+  const [lastAnalysisTimestamp, setLastAnalysisTimestamp] = useState<string | null>(null);
 
   const distanceRef = useRef(0);
   const [distance, setDistance] = useState(0);
@@ -91,7 +92,7 @@ export default function SesiOlahraga() {
   useEffect(() => {
     initSpatialAudio().catch(console.error);
     return () => {
-      stopObstacleAlert();
+      stopAlert();
     };
   }, []);
 
@@ -108,7 +109,7 @@ export default function SesiOlahraga() {
 
   useEffect(() => {
     if (!guidanceEnabled || paused) {
-      stopObstacleAlert();
+      stopAlert();
       return;
     }
 
@@ -119,7 +120,6 @@ export default function SesiOlahraga() {
       }
 
       const result = await fetchLatestAnalysis();
-
       if (!result || result.metadata.timestamp === lastAnalysisTimestamp) {
         return;
       }
@@ -131,33 +131,30 @@ export default function SesiOlahraga() {
         return;
       }
 
+      // Pick the closest (smallest distance level)
       const closestObstacle = obstacles.reduce((prev, curr) =>
-        parseInt(curr.position.distance) < parseInt(prev.position.distance)
-          ? curr
-          : prev
+        parseInt(curr.position.distance) < parseInt(prev.position.distance) ? curr : prev
       );
 
       const { angle, distance: distanceStr } = closestObstacle.position;
       const distanceLevel = parseInt(distanceStr);
 
       console.log(
-        `Obstacle '${closestObstacle.name}' detected: ${angle.toFixed(
-          0
-        )}° at distance level ${distanceLevel}`
+        `Obstacle '${closestObstacle.name}' detected: ${angle.toFixed(0)}° at distance level ${distanceLevel}`
       );
 
       isPlayingAlert.current = true;
       setLastObstacleTime(currentTime);
 
       try {
-        playObstacleAlert(angle, distanceLevel, 2000);
+        // ⬇️ CHANGED: use the unified playAlert (mode, angle, distanceLevel, obstacleName?)
+        await playAlert(isSpeak, angle, distanceLevel, closestObstacle.name);
+        // previously: playObstacleAlert(angle, distanceLevel, 2000);
       } catch (error) {
         if (error instanceof Error) {
           console.error("Error playing obstacle alert:", error.message);
         } else {
-          console.error(
-            "An unknown error occurred while playing obstacle alert"
-          );
+          console.error("An unknown error occurred while playing obstacle alert");
         }
       } finally {
         setTimeout(() => {
@@ -180,14 +177,14 @@ export default function SesiOlahraga() {
   const onToggleGuidance = () => {
     setGuidanceEnabled((prev) => {
       if (prev) {
-        stopObstacleAlert();
+        stopAlert();
       }
       return !prev;
     });
   };
 
   const onFinish = () => {
-    stopObstacleAlert();
+    stopAlert();
     router.replace({
       pathname: "/olahragaSelesai",
       params: {

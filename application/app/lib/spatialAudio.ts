@@ -1,4 +1,5 @@
 import { Audio, AVPlaybackStatus } from "expo-av";
+import * as Speech from 'expo-speech';
 
 let sound: Audio.Sound | null = null;
 // Mengubah tipe dari NodeJS.Timeout menjadi any agar kompatibel dengan React Native
@@ -13,15 +14,28 @@ function angleToPan(angleDeg: number): number {
 function getBeepParams(distanceLevel: number) {
   switch (distanceLevel) {
     case 1:
-      return { interval: 250, volume: 1.0 }; // Near: fast & loud
+      return { interval: 200, volume: 1.0 }; // Near: fast & loud
     case 2:
-      return { interval: 500, volume: 0.7 }; // Mid: medium
+      return { interval: 500, volume: 0.6 }; // Mid: medium
     default:
-      return { interval: 1000, volume: 0.4 }; // Far: slow & quiet
+      return { interval: 1000, volume: 0.3 }; // Far: slow & quiet
   }
 }
 
-/** Initialize audio system - call once at app start */
+function angleToDirectionID(angleDeg: number): 'kiri' | 'kanan' | 'depan' {
+  if (angleDeg < -15) return 'kiri';
+  if (angleDeg > 15) return 'kanan';
+  return 'depan';
+}
+
+function angleToClockFront(angleDeg: number): 9|10|11|12|1|2|3 {
+  const clamped = Math.max(-90, Math.min(90, angleDeg));
+  const idx = Math.round((clamped + 90) / 30); // 0..6
+  const map: Array<9|10|11|12|1|2|3> = [9, 10, 11, 12, 1, 2, 3];
+  return map[idx];
+}
+
+
 export async function initSpatialAudio() {
   if (sound) return;
 
@@ -97,7 +111,6 @@ export function playObstacleAlert(
   }, durationMs - 50); // Hentikan sedikit lebih awal
 }
 
-/** Function to stop any ongoing alerts immediately */
 export async function stopObstacleAlert() {
   if (alertInterval) {
     clearInterval(alertInterval);
@@ -109,5 +122,52 @@ export async function stopObstacleAlert() {
     } catch (error) {
       console.error("Error stopping sound:", error);
     }
+  }
+}
+
+export function stopSpeechAlert() {
+  try {
+    Speech.stop();
+  } catch (e) {
+    console.error("Error stopping speech:", e);
+  }
+}
+
+export async function stopAlert() {
+  await stopObstacleAlert();
+  stopSpeechAlert();
+}
+
+/** Speech alert: "Terdapat {rintangan} di {kiri/kanan/depan}, arah jam {x}." */
+export function speakObstacleAlert(angleDeg: number, obstacleName = 'rintangan') {
+  try { Speech.stop(); } catch {}
+  const dir = angleToDirectionID(angleDeg);
+  const jam = angleToClockFront(angleDeg);
+  const kalimat =
+    dir === 'depan'
+      ? `Terdapat ${obstacleName} di depan, arah jam ${jam}.`
+      : `Terdapat ${obstacleName} di ${dir}, arah jam ${jam}.`;
+  Speech.speak(kalimat, { language: 'id-ID', rate: 1.0, pitch: 1.0 });
+}
+
+/**
+ * Main chooser:
+ * mode = 0 → beep
+ * mode = 1 → speech
+ */
+export async function playAlert(
+  mode: 0 | 1,
+  angleDeg: number,
+  distanceLevel: number,
+  obstacleName?: string
+) {
+  if (mode === 0) {
+    // optional: stop any ongoing speech before beep
+    stopSpeechAlert();
+    playObstacleAlert(angleDeg, distanceLevel);
+  } else {
+    // optional: stop any ongoing beep before speech
+    await stopObstacleAlert();
+    speakObstacleAlert(angleDeg, obstacleName ?? 'rintangan');
   }
 }
