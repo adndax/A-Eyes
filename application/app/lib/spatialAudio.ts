@@ -5,10 +5,10 @@ let sound: Audio.Sound | null = null;
 // Mengubah tipe dari NodeJS.Timeout menjadi any agar kompatibel dengan React Native
 let alertInterval: any | null = null;
 
-/** Convert angle (-90 to 90 degrees) to stereo pan (-1 to 1) */
+/** Convert angle (90 to -90 degrees) to stereo pan (-1 to 1) */
 function angleToPan(angleDeg: number): number {
-  const clampedAngle = Math.max(-90, Math.min(90, angleDeg));
-  return clampedAngle / 90; // -1 (left) to 1 (right)
+  const clamped = Math.max(-90, Math.min(90, angleDeg));
+  return -clamped / 90;
 }
 
 function getBeepParams(distanceLevel: number) {
@@ -23,15 +23,15 @@ function getBeepParams(distanceLevel: number) {
 }
 
 function angleToDirectionID(angleDeg: number): 'kiri' | 'kanan' | 'depan' {
-  if (angleDeg < -15) return 'kiri';
-  if (angleDeg > 15) return 'kanan';
+  if (angleDeg < -15) return 'kanan';
+  if (angleDeg > 15) return 'kiri';
   return 'depan';
 }
 
 function angleToClockFront(angleDeg: number): 9|10|11|12|1|2|3 {
   const clamped = Math.max(-90, Math.min(90, angleDeg));
-  const idx = Math.round((clamped + 90) / 30); // 0..6
-  const map: Array<9|10|11|12|1|2|3> = [9, 10, 11, 12, 1, 2, 3];
+  const idx = Math.round((clamped + 90) / 30);
+  const map: Array<9|10|11|12|1|2|3> = [3, 2, 1, 12, 11, 10, 9];
   return map[idx];
 }
 
